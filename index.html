@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.4 system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Custo360 Demo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: barra lateral de módulos + área de trabalho; em telas estreitas a barra vira abas roláveis no topo */
+:root{
+  --bg:#F3F1EA; --surface:#FFFFFF; --surface-2:#F8F6F0; --line:#E2DDCF;
+  --fg:#0F1B2D; --muted:#5B6677; --nav:#0F1B2D; --nav-fg:#F6F4EE; --nav-muted:#93A3BA;
+  --accent:#F5B53D; --accent-ink:#0F1B2D; --teal:#0E7C6B; --teal-soft:#DDF0EB;
+  --good:#0E7C6B; --warn:#B7791F; --warn-soft:#FBEFD6; --bad:#B42318; --bad-soft:#FBE4E1;
+  --display:'Space Grotesk',ui-sans-serif,system-ui,sans-serif;
+  --body:'DM Sans',ui-sans-serif,system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0B1422; --surface:#13213A; --surface-2:#182945; --line:#26395A;
+  --fg:#EEF1F5; --muted:#9AA8BC; --nav:#07101C; --nav-fg:#EEF1F5; --nav-muted:#7F90A8;
+  --teal:#3CC2A8; --teal-soft:#123A3A; --good:#3CC2A8; --warn:#F0B44C; --warn-soft:#3A2F17; --bad:#F27B6E; --bad-soft:#3D1D1D;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0B1422; --surface:#13213A; --surface-2:#182945; --line:#26395A;
+  --fg:#EEF1F5; --muted:#9AA8BC; --nav:#07101C; --nav-fg:#EEF1F5; --nav-muted:#7F90A8;
+  --teal:#3CC2A8; --teal-soft:#123A3A; --good:#3CC2A8; --warn:#F0B44C; --warn-soft:#3A2F17; --bad:#F27B6E; --bad-soft:#3D1D1D;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+p{margin:0}
+.num{font-variant-numeric:tabular-nums}
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
+nav.side{background:var(--nav);color:var(--nav-fg);padding:24px 14px;display:flex;flex-direction:column;gap:20px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:10px;padding:0 8px}
+.brand-mark{width:34px;height:34px;border-radius:9px;background:var(--accent);display:grid;place-items:center;color:#0F1B2D}
+.brand b{font-family:var(--display);font-size:20px}
+.brand small{display:block;color:var(--nav-muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.tabs{display:flex;flex-direction:column;gap:2px}
+.tab{all:unset;cursor:pointer;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;color:var(--nav-muted);font-weight:500}
+.tab svg{width:18px;height:18px;flex:none}
+.tab:hover{color:var(--nav-fg);background:rgba(255,255,255,.05)}
+.tab[aria-selected="true"]{color:#0F1B2D;background:var(--accent);font-weight:700}
+.tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.side-foot{margin-top:auto;font-size:12px;color:var(--nav-muted);padding:0 8px;line-height:1.45}
+main{min-width:0;padding-block:24px 48px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:20px;max-width:1240px}
+.topbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.topbar h1{font-size:28px}
+.topbar .sub{color:var(--muted)}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;letter-spacing:.02em}
+.pill.demo{background:var(--warn-soft);color:var(--warn)}
+.pill.ok{background:var(--teal-soft);color:var(--good)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+.grid{display:grid;gap:16px}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g21{grid-template-columns:2fr 1fr}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;min-width:0;display:flex;flex-direction:column;gap:12px}
+.card h3{font-size:16px}
+.label{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.kpi .v{font-family:var(--display);font-size:28px;font-weight:600}
+.kpi .d{font-size:13px;color:var(--muted)}
+.up{color:var(--good)} .down{color:var(--bad)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:8px 6px;border-bottom:1px solid var(--line)}
+td{padding:10px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+td.r,th.r{text-align:right}
+tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between}
+.btn{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:8px;font-weight:700;font-size:14px;background:var(--fg);color:var(--bg)}
+.btn.acc{background:var(--accent);color:#0F1B2D}
+.btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted);font-weight:500}
+input[type=range]{width:100%;accent-color:var(--teal)}
+input[type=text],input[type=number],select{font:inherit;color:var(--fg);background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%}
+.fval{font-family:var(--mono);font-size:13px;color:var(--fg)}
+.note{font-size:12.5px;color:var(--muted)}
+.alert{display:flex;gap:10px;align-items:flex-start;padding:12px;border-radius:10px;background:var(--surface-2);border:1px solid var(--line)}
+.alert .i{width:8px;align-self:stretch;border-radius:4px;flex:none}
+.stack{height:18px;border-radius:6px;overflow:hidden;display:flex;background:var(--surface-2)}
+.stack span{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:13px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.dev{display:flex;gap:12px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%}
+.dev:hover,.dev[aria-pressed="true"]{border-color:var(--teal)}
+.dev .ic{width:38px;height:38px;border-radius:9px;background:var(--teal-soft);color:var(--teal);display:grid;place-items:center;flex:none}
+.dev .ic svg{width:20px;height:20px}
+.dev .m{flex:1;min-width:0}
+.dev .m b{display:block}
+.dev .m small{color:var(--muted);font-family:var(--mono);font-size:12px}
+.steps{display:flex;flex-direction:column;gap:10px}
+.step{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);color:var(--muted)}
+.step .n{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;border:1.5px solid currentColor;flex:none}
+.step.done{color:var(--good);background:var(--teal-soft);border-color:transparent}
+.step.run{color:var(--fg);border-color:var(--accent)}
+.step.fail{color:var(--bad);background:var(--bad-soft);border-color:transparent}
+.big{font-family:var(--display);font-size:40px;font-weight:700;line-height:1}
+.plans{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.plan.hl{border:2px solid var(--accent)}
+.plan ul{margin:0;padding-left:18px;color:var(--muted);font-size:14px;display:flex;flex-direction:column;gap:4px}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;z-index:20;max-width:calc(100% - 32px);box-shadow:0 6px 24px rgba(0,0,0,.18)}
+tfoot td{border-top:1px solid var(--line)}
+.bell{all:unset;cursor:pointer;position:relative;width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:var(--surface);border:1px solid var(--line);color:var(--fg)}
+.bell:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.bell.ring{animation:ring .6s ease 2}
+@keyframes ring{0%,100%{transform:rotate(0)}25%{transform:rotate(-14deg)}75%{transform:rotate(14deg)}}
+.badge{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:var(--bad);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center}
+.avpanel{position:absolute;right:0;top:48px;width:min(420px,calc(100vw - 32px));z-index:30;box-shadow:0 12px 40px rgba(0,0,0,.22)}
+.av{display:flex;gap:10px;padding:10px 12px;border-radius:10px;background:var(--surface-2);border:1px solid var(--line)}
+.av .i{width:6px;border-radius:3px;flex:none}
+.av b{display:block;font-size:14px}
+.av .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.av .acts button{all:unset;cursor:pointer;font-size:12.5px;font-weight:700;color:var(--teal);text-decoration:underline;text-underline-offset:2px}
+svg text{fill:var(--muted);font-family:var(--body);font-size:11px}
+.view[hidden]{display:none!important}
+.live{font-family:var(--mono)}
+@media (max-width:980px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.g3,.g21{grid-template-columns:1fr}.plans{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:760px){
+  .app{grid-template-columns:1fr}
+  nav.side{position:sticky;top:env(safe-area-inset-top,0px);height:auto;flex-direction:column;gap:10px;padding-block:12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));z-index:5}
+  body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--nav)}
+  .tabs{flex-direction:row;overflow-x:auto;gap:4px;margin:0 -4px}
+  .tab{white-space:nowrap;padding:8px 10px}
+  .side-foot{display:none}
+  main{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .g2,.plans{grid-template-columns:1fr}
+}
+@media (max-width:440px){.g4{grid-template-columns:1fr 1fr}.kpi .v{font-size:22px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<div class="app">
+<nav class="side" aria-label="Módulos">
+  <div class="brand">
+    <div class="brand-mark"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></div>
+    <div><b>Custo360</b><small>BetaTech</small></div>
+  </div>
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <p class="side-foot">Protótipo conceitual. Empresa, equipamentos e valores são fictícios.</p>
+</nav>
+
+<main>
+  <div class="topbar">
+    <div>
+      <h1 id="vtitle">Painel de controle</h1>
+      <p class="sub">Padaria Pão de Ouro · outubro de 2026</p>
+    </div>
+    <div class="row" style="position:relative">
+      <span class="pill demo"><span class="dot"></span>Dados fictícios</span>
+      <button class="bell" id="bell" type="button" aria-label="Avisos" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 22a2.5 2.5 0 0 0 2.4-2h-4.8a2.5 2.5 0 0 0 2.4 2zm7-6V11a7 7 0 0 0-5.5-6.8V3a1.5 1.5 0 0 0-3 0v1.2A7 7 0 0 0 5 11v5l-2 2v1h18v-1z"/></svg><span class="badge num" id="bell-n" hidden></span></button>
+      <div class="card avpanel" id="avpanel" hidden>
+        <div class="row between"><h3>Avisos</h3><span class="note" id="av-sum"></span></div>
+        <div class="row" id="av-f" style="gap:6px"></div>
+        <div id="av-list" style="display:flex;flex-direction:column;gap:8px;max-height:60vh;overflow-y:auto"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAINEL -->
+  <section class="view" id="v-painel">
+    <div class="grid g4">
+      <div class="card kpi"><span class="label">Receita do mês</span><span class="v num" id="k-rec"></span><span class="d"><span class="up">+6,2%</span> sobre setembro</span></div>
+      <div class="card kpi"><span class="label">Custos e despesas</span><span class="v num" id="k-desp"></span><span class="d">Inclui o Simples Nacional</span></div>
+      <div class="card kpi"><span class="label">Energia medida</span><span class="v num" id="k-ener"></span><span class="d num" id="k-kwh"></span></div>
+      <div class="card kpi"><span class="label">Margem líquida</span><span class="v num" id="k-marg"></span><span class="d" id="k-margd"></span></div>
+    </div>
+    <div class="grid g21" style="margin-top:16px">
+      <div class="card">
+        <div class="row between"><h3>Receitas e despesas · 6 meses</h3>
+          <div class="legend"><span><i style="background:var(--teal)"></i>Receitas</span><span><i style="background:var(--accent)"></i>Despesas</span></div></div>
+        <div class="tw"><svg id="ch-6m" viewBox="0 0 640 230" style="width:100%;min-width:440px"></svg></div>
+      </div>
+      <div class="card">
+        <div class="row between"><h3>Avisos</h3><button class="btn ghost" type="button" style="padding:4px 10px;font-size:13px" onclick="openAv()">Ver todos</button></div>
+        <div id="pn-av" style="display:flex;flex-direction:column;gap:8px"></div>
+        <button class="btn acc" onclick="show('cenarios')">Simular uma decisão</button>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h3>Para onde vai o dinheiro</h3>
+      <div class="stack" id="desp-stack"></div>
+      <div class="legend" id="desp-legend"></div>
+    </div>
+  </section>
+
+  <!-- PRODUTOS -->
+  <section class="view" id="v-produtos" hidden>
+    <div id="pr-list-mode" style="display:flex;flex-direction:column;gap:16px">
+      <div class="grid g4">
+        <div class="card kpi"><span class="label">Produtos cadastrados</span><span class="v num" id="pk-n"></span><span class="d" id="pk-cat"></span></div>
+        <div class="card kpi"><span class="label">Margem média</span><span class="v num" id="pk-m"></span><span class="d">Ponderada pelas vendas, após tributos</span></div>
+        <div class="card kpi"><span class="label">Lucro previsto no mês</span><span class="v num" id="pk-l"></span><span class="d" id="pk-best"></span></div>
+        <div class="card kpi"><span class="label">Precisam de atenção</span><span class="v num" id="pk-a"></span><span class="d">Margem abaixo de 30%</span></div>
+      </div>
+      <div class="card">
+        <div class="row between">
+          <div class="row" style="flex:1;min-width:0">
+            <input type="text" id="pr-q" placeholder="Buscar por nome ou código" style="max-width:260px">
+            <select id="pr-cat" style="max-width:200px"></select>
+          </div>
+          <button class="btn acc" id="pr-new">+ Novo produto</button>
+        </div>
+        <div class="tw"><table><thead><tr><th>Produto</th><th>Categoria</th><th class="r">Preço</th><th class="r">Custo/unid.</th><th class="r">Margem</th><th class="r">Vendas/mês</th><th class="r">Lucro/mês</th><th></th></tr></thead><tbody id="pr-tab"></tbody></table></div>
+        <p class="note">O custo de cada produto é recalculado sozinho quando o preço de um insumo muda no estoque ou quando a tomada mede um consumo diferente no forno.</p>
+      </div>
+    </div>
+
+    <div id="pr-edit-mode" hidden style="display:flex;flex-direction:column;gap:16px">
+      <div class="row between">
+        <div class="row"><button class="btn ghost" id="pe-back">← Voltar</button><h2 id="pe-title" style="font-size:22px"></h2></div>
+        <div class="row"><button class="btn ghost" id="pe-del">Excluir</button><button class="btn acc" id="pe-save">Salvar produto</button></div>
+      </div>
+      <div class="grid g21" style="align-items:start">
+        <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+          <div class="card">
+            <div class="row between"><h3>1 · Dados do produto</h3><span class="note">Como aparece no caixa e nos relatórios</span></div>
+            <div class="grid g2">
+              <label class="f">Nome do produto<input type="text" id="pe-n"></label>
+              <label class="f">Código (SKU)<input type="text" id="pe-sku"></label>
+              <label class="f">Categoria<select id="pe-cat"></select></label>
+              <label class="f">Unidade de venda<select id="pe-uv"><option value="unidade">Unidade</option><option value="kg">Quilo (kg)</option><option value="fatia">Fatia</option><option value="bolo">Bolo inteiro</option><option value="cento">Cento</option></select></label>
+              <label class="f">Preço de venda (R$)<input type="number" id="pe-preco" step="0.01" min="0"></label>
+              <label class="f">Vendas previstas por mês<input type="number" id="pe-vend" step="1" min="0"></label>
+            </div>
+          </div>
+          <div class="card">
+            <div class="row between"><h3>2 · Ficha técnica do lote</h3><label class="f" style="flex-direction:row;align-items:center;gap:8px">Um lote rende<input type="number" id="pe-rend" min="1" step="1" style="width:90px"><span id="pe-rendu"></span></label></div>
+            <div class="tw"><table><thead><tr><th>Ingrediente</th><th class="r">Qtd. no lote</th><th class="r">Custo médio</th><th class="r">Custo no lote</th><th></th></tr></thead><tbody id="pe-ficha"></tbody>
+            <tfoot><tr><td colspan="3"><b>Total de ingredientes no lote</b></td><td class="r num"><b id="pe-fichat"></b></td><td></td></tr></tfoot></table></div>
+            <div class="row"><button class="btn ghost" id="pe-addi">+ Adicionar ingrediente</button><span class="note">Os ingredientes vêm do cadastro de insumos do estoque, com o custo médio atualizado.</span></div>
+          </div>
+          <div class="card">
+            <h3>3 · Embalagem</h3>
+            <div class="tw"><table><thead><tr><th>Embalagem</th><th class="r">Qtd. por unidade vendida</th><th class="r">Custo por unidade</th><th></th></tr></thead><tbody id="pe-emb"></tbody></table></div>
+            <div class="row"><button class="btn ghost" id="pe-adde">+ Adicionar embalagem</button></div>
+          </div>
+          <div class="card">
+            <h3>4 · Produção</h3>
+            <div class="grid g2">
+              <label class="f">Equipamento usado<select id="pe-dev"></select></label>
+              <label class="f">Energia por lote (kWh) <span class="note" id="pe-devnote"></span><input type="number" id="pe-kwh" step="0.1" min="0"></label>
+              <label class="f">Tempo de mão de obra por lote (minutos)<input type="number" id="pe-min" step="5" min="0"></label>
+              <label class="f">Custo da hora de trabalho (R$, com encargos)<input type="number" id="pe-hora" step="0.5" min="0"></label>
+            </div>
+            <div class="row"><button class="btn ghost" id="pe-usemed">Usar a média medida pela tomada</button><span class="note">Média das últimas 30 fornadas registradas pelo equipamento.</span></div>
+          </div>
+        </div>
+
+        <div class="card" style="position:sticky;top:16px">
+          <span class="label">Custo por <span id="ps-u"></span></span>
+          <span class="big num" id="ps-tot"></span>
+          <div class="stack" id="ps-stack"></div>
+          <div class="tw"><table><tbody id="ps-tab"></tbody></table></div>
+          <div class="alert" id="ps-marg"></div>
+          <div style="border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:8px">
+            <span class="label">Preço sugerido</span>
+            <label class="f">Margem desejada após tributos <span class="fval" id="ps-alvov"></span><input type="range" id="ps-alvo" min="10" max="70" step="1" value="45"></label>
+            <div class="row between"><span class="big num" style="font-size:28px" id="ps-sug"></span><button class="btn ghost" id="ps-apply">Aplicar</button></div>
+            <p class="note">Preço = custo ÷ (1 − margem desejada − tributos sobre a venda).</p>
+          </div>
+          <div id="ps-val"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ESTOQUE -->
+  <section class="view" id="v-estoque" hidden>
+    <div class="grid g4">
+      <div class="card kpi"><span class="label">Valor em estoque</span><span class="v num" id="ek-val"></span><span class="d" id="ek-n"></span></div>
+      <div class="card kpi"><span class="label">Abaixo do mínimo</span><span class="v num" id="ek-min"></span><span class="d">Itens para repor</span></div>
+      <div class="card kpi"><span class="label">Vencendo em 7 dias</span><span class="v num" id="ek-ven"></span><span class="d">Usar primeiro ou negociar troca</span></div>
+      <div class="card kpi"><span class="label">Consumo previsto no mês</span><span class="v num" id="ek-cons"></span><span class="d">Pela ficha técnica × vendas previstas</span></div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="row between"><h3>Registrar movimentação</h3>
+        <div class="row" id="ef-tabs" role="tablist" style="gap:6px"></div></div>
+      <form id="ef-form" class="grid g4" style="align-items:end"></form>
+      <div id="ef-msg"></div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="row between">
+        <h3>Insumos e mercadorias</h3>
+        <div class="row">
+          <input type="text" id="es-q" placeholder="Buscar insumo" style="max-width:200px">
+          <select id="es-f" style="max-width:190px"><option value="all">Todos</option><option value="baixo">Abaixo do mínimo</option><option value="ven">Vencendo</option></select>
+        </div>
+      </div>
+      <div class="tw"><table><thead><tr><th>Insumo</th><th class="r">Saldo</th><th class="r">Mínimo</th><th class="r">Dura</th><th class="r">Custo médio</th><th class="r">Valor</th><th>Validade</th><th>Situação</th></tr></thead><tbody id="es-tab"></tbody></table></div>
+      <p class="note">"Dura" é a cobertura em dias, calculada pelo consumo que as fichas técnicas preveem para as vendas do mês.</p>
+    </div>
+
+    <div class="grid g2" style="margin-top:16px">
+      <div class="card">
+        <div class="row between"><h3>Sugestão de compra</h3><span class="note">Para cobrir 15 dias acima do mínimo</span></div>
+        <div class="tw"><table><thead><tr><th>Insumo</th><th class="r">Comprar</th><th class="r">Valor estimado</th></tr></thead><tbody id="es-sug"></tbody></table></div>
+        <div class="row between"><b>Total do pedido</b><b class="num" id="es-sugt"></b></div>
+      </div>
+      <div class="card">
+        <h3>Últimas movimentações</h3>
+        <div class="tw" style="max-height:340px;overflow-y:auto"><table><thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th class="r">Valor</th></tr></thead><tbody id="es-mov"></tbody></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FUNCIONÁRIOS -->
+  <section class="view" id="v-funcionarios" hidden>
+    <div class="grid g4">
+      <div class="card kpi"><span class="label">Funcionários ativos</span><span class="v num" id="fk-n"></span><span class="d" id="fk-set"></span></div>
+      <div class="card kpi"><span class="label">Custo total da folha</span><span class="v num" id="fk-c"></span><span class="d">Com encargos e provisões</span></div>
+      <div class="card kpi"><span class="label">Líquido a pagar</span><span class="v num" id="fk-l"></span><span class="d">Até o 5º dia útil de novembro</span></div>
+      <div class="card kpi"><span class="label">Folha sobre a receita</span><span class="v num" id="fk-p"></span><span class="d">Custo total da folha ÷ receita do mês</span></div>
+    </div>
+    <div class="row" id="fs-tabs" style="gap:6px;margin-top:16px"></div>
+
+    <!-- Equipe -->
+    <div class="fsub" id="fs-equipe" style="display:flex;flex-direction:column;gap:16px;margin-top:16px">
+      <div class="card" id="fe-card" hidden>
+        <div class="row between"><h3 id="fe-title"></h3><div class="row"><button class="btn ghost" id="fe-cancel" type="button">Cancelar</button><button class="btn ghost" id="fe-del" type="button">Excluir</button><button class="btn acc" id="fe-save" type="button">Salvar</button></div></div>
+        <span class="label">Dados do contrato</span>
+        <div class="grid g4">
+          <label class="f">Nome completo<input type="text" id="fu-n"></label>
+          <label class="f">Cargo<input type="text" id="fu-cargo"></label>
+          <label class="f">Setor<select id="fu-setor"><option>Produção</option><option>Atendimento</option><option>Administrativo</option></select></label>
+          <label class="f">Data de admissão<input type="date" id="fu-adm"></label>
+          <label class="f">Salário base (R$)<input type="number" id="fu-sal" step="0.01" min="0"></label>
+          <label class="f">Jornada<select id="fu-jor"><option value="220">44 h semanais (220 h/mês)</option><option value="180">36 h semanais (180 h/mês)</option></select></label>
+          <label class="f">Dependentes para o IR<input type="number" id="fu-dep" min="0" step="1"></label>
+          <label class="f">Vale-transporte<select id="fu-vt"><option value="1">Sim, 2 passagens por dia</option><option value="0">Não usa</option></select></label>
+        </div>
+        <span class="label">Lançamentos de outubro</span>
+        <div class="grid g4">
+          <label class="f">Horas extras (50%)<input type="number" id="fu-he" min="0" step="1"></label>
+          <label class="f">Horas noturnas (22h às 5h)<input type="number" id="fu-not" min="0" step="1"></label>
+          <label class="f">Faltas sem justificativa (dias)<input type="number" id="fu-fal" min="0" step="1"></label>
+          <div class="f"><span class="note" id="fu-prev"></span></div>
+        </div>
+        <div id="fu-val"></div>
+      </div>
+      <div class="card">
+        <div class="row between"><h3>Equipe</h3><button class="btn acc" id="fu-new">+ Novo funcionário</button></div>
+        <div class="tw"><table><thead><tr><th>Funcionário</th><th>Setor</th><th>Admissão</th><th class="r">Salário base</th><th class="r">Custo para a empresa</th><th>Férias</th><th></th></tr></thead><tbody id="fu-tab"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- Folha -->
+    <div class="fsub" id="fs-folha" hidden style="display:flex;flex-direction:column;gap:16px;margin-top:16px">
+      <div class="card">
+        <div class="row between"><h3>Folha de pagamento · outubro de 2026</h3><span class="note">Clique em um funcionário para ver o holerite</span></div>
+        <div class="tw"><table><thead><tr><th>Funcionário</th><th class="r">Salário</th><th class="r">Extras e adicionais</th><th class="r">Faltas</th><th class="r">INSS</th><th class="r">IRRF</th><th class="r">Vale-transp.</th><th class="r">Líquido</th></tr></thead><tbody id="fo-tab"></tbody><tfoot id="fo-tot"></tfoot></table></div>
+        <p class="note">Extras e adicionais incluem horas extras, adicional noturno de 20% e o descanso semanal remunerado (DSR) sobre eles. Outubro de 2026 tem 26 dias úteis e 5 domingos e feriados.</p>
+      </div>
+      <div class="card" id="fo-hol"></div>
+    </div>
+
+    <!-- Encargos -->
+    <div class="fsub" id="fs-enc" hidden style="display:flex;flex-direction:column;gap:16px;margin-top:16px">
+      <div class="card">
+        <div class="row between"><h3>Quanto cada funcionário custa para a padaria</h3><span class="pill ok">Simples Nacional · Anexo I</span></div>
+        <div class="tw"><table><thead><tr><th>Funcionário</th><th class="r">Remuneração</th><th class="r">FGTS 8%</th><th class="r">Férias + 1/3</th><th class="r">13º salário</th><th class="r">FGTS s/ provisões</th><th class="r">VT pago pela empresa</th><th class="r">Custo total</th><th class="r">× salário</th></tr></thead><tbody id="en-tab"></tbody><tfoot id="en-tot"></tfoot></table></div>
+        <p class="note">Na empresa do Simples Nacional enquadrada no Anexo I, a contribuição patronal ao INSS já está dentro do DAS, por isso não aparece aqui. As provisões de férias e 13º são reservadas todo mês para não pesarem de uma vez no caixa.</p>
+      </div>
+      <div class="grid g2">
+        <div class="card">
+          <h3>Custo da folha por setor</h3>
+          <div id="en-set" style="display:flex;flex-direction:column;gap:12px"></div>
+        </div>
+        <div class="card">
+          <span class="label">Custo real da hora na produção</span>
+          <span class="big num" id="en-hora"></span>
+          <p class="note" id="en-hora-n"></p>
+          <div class="alert" id="en-hora-a"></div>
+          <button class="btn acc" id="en-apply" style="align-self:flex-start">Aplicar nas fichas técnicas</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Agenda -->
+    <div class="fsub" id="fs-agenda" hidden style="display:flex;flex-direction:column;gap:16px;margin-top:16px">
+      <div class="grid g2">
+        <div class="card">
+          <h3>Controle de férias</h3>
+          <div class="tw"><table><thead><tr><th>Funcionário</th><th>Período aquisitivo</th><th>Conceder até</th><th>Situação</th></tr></thead><tbody id="ag-fer"></tbody></table></div>
+          <p class="note">Férias concedidas depois do prazo são pagas em dobro (art. 137 da CLT).</p>
+        </div>
+        <div class="card">
+          <h3>Obrigações trabalhistas de novembro</h3>
+          <div class="tw"><table><thead><tr><th>Prazo</th><th>Obrigação</th><th class="r">Valor</th></tr></thead><tbody id="ag-obr"></tbody></table></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="toast" role="status" aria-live="polite" hidden></div>
+
+  <!-- VENDAS -->
+  <section class="view" id="v-vendas" hidden>
+    <div class="grid g4">
+      <div class="card kpi"><span class="label">Faturamento de outubro</span><span class="v num" id="vk-r"></span><span class="d" id="vk-mix"></span></div>
+      <div class="card kpi"><span class="label">Ticket médio</span><span class="v num" id="vk-t"></span><span class="d">Valor médio por cupom</span></div>
+      <div class="card kpi"><span class="label">Cupons emitidos</span><span class="v num" id="vk-c"></span><span class="d">Cerca de 160 por dia</span></div>
+      <div class="card kpi"><span class="label">Taxas de cartão</span><span class="v num" id="vk-tx"></span><span class="d">Descontadas pela operadora</span></div>
+    </div>
+    <div class="grid g21" style="margin-top:16px">
+      <div class="card">
+        <div class="row between"><h3>Frente de caixa</h3><span class="note">Registre uma venda e veja o efeito no estoque, no caixa e no resultado</span></div>
+        <div class="row" style="align-items:end">
+          <label class="f" style="flex:2;min-width:180px">Item<select id="pdv-i"></select></label>
+          <label class="f" style="width:110px">Quantidade<input type="number" id="pdv-q" min="0.05" step="1" value="10"></label>
+          <button class="btn ghost" id="pdv-add" type="button">Adicionar</button>
+        </div>
+        <div class="tw"><table><thead><tr><th>Item</th><th class="r">Qtd.</th><th class="r">Preço</th><th class="r">Total</th><th></th></tr></thead><tbody id="pdv-cart"></tbody></table></div>
+        <div class="row" id="pdv-pag" style="gap:6px"></div>
+        <div class="grid g2">
+          <div class="tw"><table><tbody id="pdv-sum"></tbody></table></div>
+          <div style="display:flex;flex-direction:column;gap:10px;justify-content:flex-end"><button class="btn acc" id="pdv-fim" type="button" style="justify-content:center">Finalizar venda</button><div id="pdv-msg"></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Formas de pagamento no mês</h3>
+        <div class="tw"><table><thead><tr><th>Forma</th><th class="r">Valor</th><th class="r">Taxa</th><th>Recebe em</th></tr></thead><tbody id="vp-tab"></tbody></table></div>
+        <div class="stack" id="vp-stack"></div>
+        <p class="note">Taxas e prazos de repasse ilustrativos. O crédito só entra no caixa 30 dias depois, e o fluxo de caixa de novembro já considera isso.</p>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="row between"><h3>Vendas por item · curva ABC</h3>
+        <select id="abc-f" style="max-width:220px"><option value="">Todos os itens</option><option value="prod">Produção própria</option><option value="rev">Revenda de mercadorias</option></select></div>
+      <div class="tw"><table><thead><tr><th>Classe</th><th>Item</th><th class="r">Qtd. no mês</th><th class="r">Preço</th><th class="r">Receita</th><th class="r">% da receita</th><th class="r">% acumulado</th><th class="r">Custo/unid.</th><th class="r">Margem bruta</th></tr></thead><tbody id="abc-tab"></tbody></table></div>
+      <p class="note">Classe A: itens que somam os primeiros 80% da receita. Classe B: os próximos 15%. Classe C: os 5% finais. O custo dos produtos próprios é o custo por absorção, com os custos indiretos rateados (aba Custeio).</p>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h3>Últimos cupons</h3>
+      <div class="tw"><table><thead><tr><th>Cupom</th><th>Hora</th><th>Itens</th><th>Pagamento</th><th class="r">Valor</th></tr></thead><tbody id="cup-tab"></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- CUSTEIO -->
+  <section class="view" id="v-custeio" hidden>
+    <div class="grid g4">
+      <div class="card kpi"><span class="label">Custos indiretos (CIF)</span><span class="v num" id="ck-cif"></span><span class="d">Rateados entre os produtos</span></div>
+      <div class="card kpi"><span class="label">Custo da produção vendida</span><span class="v num" id="ck-cpv"></span><span class="d" id="ck-cpvp"></span></div>
+      <div class="card kpi"><span class="label">Depreciação do mês</span><span class="v num" id="ck-dep"></span><span class="d">Despesa que não sai do caixa</span></div>
+      <div class="card kpi"><span class="label">Ponto de equilíbrio</span><span class="v num" id="ck-pe"></span><span class="d">Receita mínima por mês</span></div>
+    </div>
+    <div class="grid g2" style="margin-top:16px">
+      <div class="card">
+        <h3>Custos indiretos de fabricação do mês</h3>
+        <div class="tw"><table><tbody id="cif-tab"></tbody></table></div>
+        <label class="f">Parte do aluguel que corresponde à área de produção <span class="fval" id="c-areav"></span><input type="range" id="c-area" min="30" max="90" step="5" value="60"></label>
+      </div>
+      <div class="card">
+        <h3>Critério de rateio</h3>
+        <label class="f">Distribuir os custos indiretos pelos produtos conforme<select id="c-base">
+          <option value="mod">Horas de mão de obra direta</option><option value="kwh">Energia consumida no forno (kWh)</option><option value="rec">Receita de vendas</option><option value="lotes">Número de lotes produzidos</option></select></label>
+        <div class="tw"><table><thead><tr><th>Produto</th><th class="r">Base</th><th class="r">% do rateio</th><th class="r">CIF no mês</th></tr></thead><tbody id="rat-tab"></tbody></table></div>
+        <p class="note">O rateio é uma escolha do gestor, não uma regra única. Troque o critério e observe como o custo e o lucro de cada produto mudam, enquanto o lucro total da padaria continua o mesmo.</p>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="row between"><h3>Custo por produto: absorção × variável</h3><span class="note">Valores por unidade vendida</span></div>
+      <div class="tw"><table><thead><tr><th>Produto</th><th class="r">Preço</th><th class="r">Custo variável</th><th class="r">Mão de obra direta</th><th class="r">CIF rateado</th><th class="r">Custo por absorção</th><th class="r">Lucro por absorção</th><th class="r">Margem de contribuição</th><th class="r">Contribuição no mês</th></tr></thead><tbody id="abs-tab"></tbody></table></div>
+      <div class="alert" id="abs-ins"></div>
+      <p class="note">Custo variável = ingredientes, embalagem e energia do forno. Como a equipe é mensalista, no custeio variável a mão de obra é custo fixo. Lucro e margem já descontam o Simples Nacional e a taxa média de cartão.</p>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="row between"><h3>Ativo imobilizado e depreciação</h3><span class="note">Método linear · taxas da Receita Federal (IN RFB 1.700/2017)</span></div>
+      <div class="tw"><table><thead><tr><th>Bem</th><th>Uso</th><th>Aquisição</th><th class="r">Valor</th><th class="r">Vida útil</th><th class="r">Depreciação/mês</th><th class="r">Acumulada</th><th class="r">Valor contábil</th></tr></thead><tbody id="atv-tab"></tbody><tfoot id="atv-tot"></tfoot></table></div>
+      <form id="atv-form" class="grid g4" style="align-items:end">
+        <label class="f">Novo bem<input type="text" id="at-n" value="Fatiadeira de frios"></label>
+        <label class="f">Uso<select id="at-s"><option>Produção</option><option selected>Loja</option><option>Administração</option></select></label>
+        <label class="f">Valor de aquisição (R$)<input type="number" id="at-v" min="0" step="10" value="4800"></label>
+        <label class="f">Data de aquisição<input type="date" id="at-d" value="2026-10-05"></label>
+        <label class="f">Vida útil<select id="at-vu"><option value="10">Máquinas e equipamentos · 10 anos (10% a.a.)</option><option value="5">Computadores e periféricos · 5 anos (20% a.a.)</option><option value="10">Móveis e utensílios · 10 anos (10% a.a.)</option><option value="5">Veículos · 5 anos (20% a.a.)</option><option value="25">Edificações · 25 anos (4% a.a.)</option></select></label>
+        <button class="btn acc" type="submit">Adicionar bem</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- DRE -->
+  <section class="view" id="v-dre" hidden>
+    <div class="row between">
+      <div class="row" id="dre-mode" style="gap:6px"></div>
+      <span class="note">Outubro de 2026 · regime de competência</span>
+    </div>
+    <div class="grid g21" style="margin-top:16px;align-items:start">
+      <div class="card">
+        <div class="row between"><h3 id="dre-title"></h3><span class="pill demo">Gerencial</span></div>
+        <div class="tw"><table><thead><tr><th>Conta</th><th class="r">Valor</th><th class="r">AV %</th></tr></thead><tbody id="dre-tab"></tbody></table></div>
+        <p class="note">AV % é a análise vertical: quanto cada linha representa da receita bruta. Como a produção é vendida no mesmo dia e não há estoque de produtos acabados, o lucro é o mesmo nos dois formatos. O que muda é a leitura: a absorção mostra o lucro bruto, e o custeio variável mostra a margem de contribuição.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+        <div class="card">
+          <h3>Indicadores do mês</h3>
+          <div class="tw"><table><tbody id="dre-ind"></tbody></table></div>
+        </div>
+        <div class="card" id="dre-ins"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ENERGIA -->
+  <section class="view" id="v-energia" hidden>
+    <div class="grid g3">
+      <div class="card kpi"><span class="label">Potência agora</span><span class="v live num" id="e-now"></span><span class="d">Soma dos equipamentos ligados</span></div>
+      <div class="card kpi"><span class="label">Consumo do mês</span><span class="v num" id="e-kwh"></span><span class="d">Tarifa fictícia de R$ 0,95/kWh</span></div>
+      <div class="card kpi"><span class="label">Custo do mês</span><span class="v num" id="e-cost"></span><span class="d">Já lançado nos custos dos produtos</span></div>
+    </div>
+    <div class="grid g2" style="margin-top:16px">
+      <div class="card">
+        <h3>Consumo por equipamento</h3>
+        <div id="e-bars" style="display:flex;flex-direction:column;gap:12px"></div>
+      </div>
+      <div class="card">
+        <h3>Simular economia</h3>
+        <label class="f">Desligar a câmara fria por mais horas à noite <span class="fval" id="s-hv"></span><input type="range" id="s-h" min="0" max="6" step="1" value="2"></label>
+        <label class="f">Reduzir fornadas fora do horário de pico <span class="fval" id="s-fv"></span><input type="range" id="s-f" min="0" max="40" step="5" value="15"></label>
+        <div class="alert"><span class="i" style="background:var(--teal)"></span><div><span class="label">Economia estimada por mês</span><p class="big num" id="s-res" style="font-size:30px;margin-top:4px"></p><p class="note" id="s-ano"></p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CAIXA -->
+  <section class="view" id="v-caixa" hidden>
+    <div class="grid g21">
+      <div class="card">
+        <div class="row between"><h3>Saldo projetado · próximos 30 dias</h3>
+          <label class="row note" style="gap:6px"><input type="checkbox" id="cx-atraso"> Simular atraso de 10 dias nos repasses do cartão de crédito</label></div>
+        <div class="tw"><svg id="ch-cx" viewBox="0 0 640 220" style="width:100%;min-width:440px"></svg></div>
+        <p class="note">Lucro não é o mesmo que caixa: o mês pode fechar com lucro e mesmo assim faltar dinheiro num dia específico.</p>
+      </div>
+      <div class="card">
+        <span class="label">Saldo hoje</span><span class="big num" id="cx-hoje"></span>
+        <span class="label">Menor saldo previsto</span><span class="big num" id="cx-min" style="font-size:30px"></span>
+        <div id="cx-alert"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h3>Contas a pagar e a receber</h3>
+      <div class="tw"><table><thead><tr><th>Dia</th><th>Descrição</th><th>Origem</th><th class="r">Valor</th></tr></thead><tbody id="cx-tab"></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- TRIBUTOS -->
+  <section class="view" id="v-tributos" hidden>
+    <div class="grid g2">
+      <div class="card">
+        <h3>Estimativa do Simples Nacional</h3>
+        <label class="f">Faturamento médio mensal <span class="fval" id="t-fatv"></span><input type="range" id="t-fat" min="10000" max="120000" step="1000" value="60000"></label>
+        <div class="tw"><table><tbody>
+          <tr><td>Receita bruta dos últimos 12 meses</td><td class="r num" id="t-rbt"></td></tr>
+          <tr><td>Faixa do Anexo I (comércio)</td><td class="r num" id="t-faixa"></td></tr>
+          <tr><td>Alíquota nominal</td><td class="r num" id="t-nom"></td></tr>
+          <tr><td>Parcela a deduzir</td><td class="r num" id="t-ded"></td></tr>
+          <tr><td><b>Alíquota efetiva</b></td><td class="r num"><b id="t-ef"></b></td></tr>
+        </tbody></table></div>
+        <p class="note">Cálculo simplificado: considera faturamento estável e usa apenas o Anexo I. Uma padaria pode ter receitas em outros anexos. A apuração oficial é responsabilidade do contador.</p>
+      </div>
+      <div class="card">
+        <span class="label">DAS estimado deste mês</span>
+        <span class="big num" id="t-das"></span>
+        <span class="note">Vencimento: 20/11/2026</span>
+        <h3 style="margin-top:8px">Agenda de obrigações</h3>
+        <div class="tw"><table><tbody>
+          <tr><td>20/11</td><td>DAS · Simples Nacional</td><td class="r"><span class="pill warn">Em aberto</span></td></tr>
+          <tr><td>20/11</td><td>FGTS Digital</td><td class="r"><span class="pill warn">Em aberto</span></td></tr>
+          <tr><td>20/10</td><td>DAS · setembro</td><td class="r"><span class="pill ok">Pago</span></td></tr>
+          <tr><td>31/03/2027</td><td>DEFIS (declaração anual)</td><td class="r"><span class="pill ok">No prazo</span></td></tr>
+        </tbody></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EQUIPAMENTOS -->
+  <section class="view" id="v-equip" hidden>
+    <div class="grid g2">
+      <div class="card">
+        <div class="row between"><h3>Equipamentos autorizados</h3><span class="note" id="eq-count"></span></div>
+        <div id="eq-list" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+      <div class="card" id="eq-detail"></div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="row between"><h3>Adicionar equipamento</h3><span class="note">Ler QR Code → verificar identidade → vincular à conta</span></div>
+      <div class="grid g2">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <label class="f">Código do QR Code<input type="text" id="pair-code" value="C360-T04-7Q2K"></label>
+          <label class="f">Nome do equipamento<input type="text" id="pair-name" value="Chapa elétrica"></label>
+          <div class="row"><button class="btn acc" id="pair-go">Vincular equipamento</button><button class="btn ghost" id="pair-fake">Testar tomada comum</button></div>
+          <p class="note">Códigos Custo360 seguem o formato C360-XXX-XXXX. Dispositivos sem identidade digital válida são recusados pela plataforma.</p>
+        </div>
+        <div class="steps" id="pair-steps"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CENÁRIOS -->
+  <section class="view" id="v-cenarios" hidden>
+    <div class="card">
+      <div class="row between"><h3>Qual decisão você quer testar?</h3><span class="note">Escolha um ponto de partida e ajuste os números</span></div>
+      <div class="grid g4" id="sc-presets"></div>
+    </div>
+    <div class="grid g2" style="margin-top:16px">
+      <div class="card">
+        <h3>Premissas do cenário</h3>
+        <label class="f">Preço médio dos produtos <span class="fval" id="sc-precov"></span><input type="range" id="sc-preco" min="-15" max="20" step="1" value="0"></label>
+        <label class="f">Volume de vendas <span class="fval" id="sc-volv"></span><input type="range" id="sc-vol" min="-25" max="30" step="1" value="0"></label>
+        <label class="f">Custo dos ingredientes <span class="fval" id="sc-ingv"></span><input type="range" id="sc-ing" min="-15" max="30" step="1" value="0"></label>
+        <label class="f">Tarifa de energia <span class="fval" id="sc-enerv"></span><input type="range" id="sc-ener" min="-10" max="30" step="1" value="0"></label>
+        <label class="row" style="gap:8px"><input type="checkbox" id="sc-func"> Contratar 1 funcionário (salário de R$ 2.900, mais encargos)</label>
+        <label class="row" style="gap:8px"><input type="checkbox" id="sc-cam"> Trocar a câmara fria por modelo eficiente (R$ 6.500, gasta 35% menos)</label>
+        <label class="row" style="gap:8px"><input type="checkbox" id="sc-dom"> Abrir aos domingos (+R$ 1.800 em folha e +4% de energia)</label>
+      </div>
+      <div class="card">
+        <div class="row between"><span class="label">Lucro mensal estimado</span><span class="pill" id="sc-verd"></span></div>
+        <div class="row" style="align-items:baseline;gap:16px"><span class="big num" id="sc-lucro"></span><span class="num" id="sc-dif"></span></div>
+        <div class="tw"><svg id="ch-sc" viewBox="0 0 560 150" style="width:100%;min-width:320px"></svg></div>
+        <div class="tw"><table><thead><tr><th>Indicador</th><th class="r">Hoje</th><th class="r">Cenário</th></tr></thead><tbody id="sc-tab"></tbody></table></div>
+      </div>
+    </div>
+    <div class="grid g21" style="margin-top:16px">
+      <div class="card" id="sc-rec"></div>
+      <div class="card">
+        <div class="row between"><h3>Comparar cenários</h3><button class="btn acc" id="sc-save">Salvar cenário</button></div>
+        <div class="tw"><table><thead><tr><th>Cenário</th><th class="r">Lucro/mês</th><th class="r">Margem</th><th></th></tr></thead><tbody id="sc-saved"></tbody></table></div>
+        <p class="note" id="sc-best"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLANOS -->
+  <section class="view" id="v-planos" hidden>
+    <div class="plans" id="plans"></div>
+    <div class="card" style="margin-top:16px">
+      <h3>Exemplo de receita para a BetaTech</h3>
+      <div class="grid g2">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <label class="f">Equipamentos vendidos ao cliente <span class="fval" id="r-eqv"></span><input type="range" id="r-eq" min="1" max="30" value="10"></label>
+          <label class="f">Plano assinado<select id="r-plan"><option value="49">Essencial · R$ 49</option><option value="129" selected>Gestão · R$ 129</option><option value="249">Inteligente · R$ 249</option></select></label>
+        </div>
+        <div class="tw"><table><tbody>
+          <tr><td>Equipamentos a R$ 199</td><td class="r num" id="r-a"></td></tr>
+          <tr><td>Assinatura por 12 meses</td><td class="r num" id="r-b"></td></tr>
+          <tr><td><b>Receita bruta no 1º ano</b></td><td class="r num"><b id="r-t"></b></td></tr>
+        </tbody></table><p class="note" style="margin-top:8px">Receita bruta, não lucro. Preços hipotéticos da atividade acadêmica.</p></div>
+      </div>
+    </div>
+  </section>
+</main>
+</div>
+
+<script>
+const brl=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const brl0=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0});
+const pct=v=>(v*100).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%';
+const $=id=>document.getElementById(id);
+const TAR=0.95;
+
+const icons={
+  painel:'<path d="M3 13h8V3H3zm10 8h8V11h-8zM3 21h8v-6H3zm10-18v6h8V3z"/>',
+  produtos:'<path d="M4 3h16v4H4zm1 6h14v12H5zm4 3v2h6v-2z"/>',
+  estoque:'<path d="M12 2 3 6.5v11L12 22l9-4.5v-11zm0 2.2 6.4 3.2L12 10.6 5.6 7.4zM5 9.1l6 3v7.6l-6-3zm8 10.6v-7.6l6-3v7.6z"/>',
+  funcionarios:'<path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm8 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM1 20c0-3.3 3.6-6 8-6s8 2.7 8 6v1H1zm17.5 1v-1c0-1.9-.8-3.5-2.1-4.7 3.3.2 6.6 1.9 6.6 4.7v1z"/>',
+  vendas:'<path d="M7 4V2h10v2h4v2h-1l-1.6 12.2A2 2 0 0 1 16.4 20H7.6a2 2 0 0 1-2-1.8L4 6H3V4zm2 5v7h2V9zm4 0v7h2V9z"/>',
+  custeio:'<path d="M12 2 2 7l10 5 10-5zm-10 9 10 5 10-5v2l-10 5-10-5zm0 4 10 5 10-5v2l-10 5-10-5z"/>',
+  dre:'<path d="M5 3h14v18H5zm3 4v2h8V7zm0 4v2h8v-2zm0 4v2h5v-2z"/>',
+  custos:'<path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15v1h-2v-1.1a3.5 3.5 0 0 1-2.5-2.4l1.9-.6c.2.8.9 1.3 1.8 1.3 1 0 1.6-.5 1.6-1.1 0-.7-.6-1-1.9-1.3-1.7-.4-3-1-3-2.8 0-1.2.9-2.2 2.1-2.5V6h2v1.1c1 .3 1.8 1 2.1 2l-1.9.6c-.2-.5-.6-.9-1.3-.9-.8 0-1.2.4-1.2.9 0 .6.6.8 1.9 1.1 1.8.4 3 1.1 3 2.9 0 1.3-1 2.4-2.6 2.7z"/>',
+  energia:'<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
+  caixa:'<path d="M3 17l5-5 4 4 8-8v4h2V4h-8v2h4l-6 6-4-4-6 6z"/><path d="M3 20h18v2H3z"/>',
+  tributos:'<path d="M6 2h9l5 5v15H6zm8 1.5V8h4.5zM8 12h8v1.5H8zm0 3h8v1.5H8zm0 3h5v1.5H8z"/>',
+  equip:'<path d="M9 2v5H7v4a5 5 0 0 0 4 4.9V22h2v-6.1A5 5 0 0 0 17 11V7h-2V2h-2v5h-2V2z"/>',
+  cenarios:'<path d="M12 2a7 7 0 0 0-4 12.7V18h8v-3.3A7 7 0 0 0 12 2zm-3 18h6v2H9z"/>',
+  planos:'<path d="M4 4h16v4H4zm0 6h16v10H4zm3 3v2h6v-2z"/>'
+};
+const VIEWS=[['painel','Painel de controle','Painel'],['vendas','Vendas','Vendas'],['produtos','Cadastro de produtos','Produtos'],['estoque','Controle de estoque','Estoque'],['funcionarios','Funcionários e folha','Funcionários'],['custeio','Custeio e depreciação','Custeio'],['dre','Demonstração do resultado (DRE)','DRE'],['energia','Monitoramento de energia','Energia'],['caixa','Fluxo de caixa','Fluxo de caixa'],['tributos','Inteligência tributária','Tributos'],['cenarios','Cenários e decisões','Cenários'],['equip','Equipamentos conectados','Equipamentos'],['planos','Planos e receita','Planos']];
+const tabsEl=$('tabs');
+VIEWS.forEach(([k,n,s])=>{const b=document.createElement('button');b.className='tab';b.setAttribute('role','tab');b.id='t-'+k;b.dataset.k=k;
+  b.innerHTML=`<svg viewBox="0 0 24 24" fill="currentColor">${icons[k]}</svg>${s}`;
+  b.onclick=()=>show(k);tabsEl.appendChild(b)});
+function show(k){VIEWS.forEach(([x,n])=>{$('v-'+x).hidden=x!==k;$('t-'+x).setAttribute('aria-selected',x===k);if(x===k)$('vtitle').textContent=n});
+  try{history.replaceState(null,'','#'+k)}catch(e){}}
+
+/* ---------- Dados fictícios ---------- */
+const devices=[
+ {id:'C360-T01-8F3A',name:'Forno elétrico',tipo:'Tomada inteligente',kwh:420,w:6200,on:true,ic:'energia'},
+ {id:'C360-M01-2C7D',name:'Câmara fria',tipo:'Medidor de circuito',kwh:380,w:1900,on:true,ic:'equip'},
+ {id:'C360-T02-5B91',name:'Freezer horizontal',tipo:'Tomada inteligente',kwh:120,w:310,on:true,ic:'equip'},
+ {id:'C360-T03-0E44',name:'Batedeira industrial',tipo:'Tomada inteligente',kwh:45,w:0,on:false,ic:'equip'}
+];
+const months=['Mai','Jun','Jul','Ago','Set','Out'];
+const rec=[54200,56100,57900,57300,59800,0];
+const desp=[50300,51900,53400,53100,55100,0];
+const despCat=[['Ingredientes',17800,'var(--teal)'],['Folha de pagamento',12400,'#6B8CC7'],['Aluguel',4200,'#9A7BC4'],['Energia medida',0,'var(--accent)'],['Embalagens',1900,'#C98A5A'],['Outras',0,'var(--muted)']];
+
+/* ---------- Painel ---------- */
+function kwhTotal(){return devices.reduce((s,d)=>s+d.kwh,0)}
+function painel(){const D=DR;
+  rec[5]=D.R;desp[5]=D.R-D.lucro;
+  const outras=desp[5]-(D.MP+D.CMV)-(D.folhaTot+PRO_LABORE)-ALUGUEL-D.enerTot-D.simples;
+  despCat.length=0;despCat.push(['Insumos e mercadorias',D.MP+D.CMV,'var(--teal)'],['Folha e pró-labore',D.folhaTot+PRO_LABORE,'#6B8CC7'],['Aluguel',ALUGUEL,'#9A7BC4'],['Energia',D.enerTot,'var(--accent)'],['Simples Nacional',D.simples,'#C98A5A'],['Outras despesas',outras,'var(--muted)']);
+  const e=kwhTotal()*TAR;
+  $('k-rec').textContent=brl0(rec[5]);$('k-desp').textContent=brl0(desp[5]);
+  $('k-ener').textContent=brl0(e);$('k-kwh').textContent=kwhTotal().toLocaleString('pt-BR')+' kWh em '+devices.length+' equipamentos';
+  $('k-marg').textContent=pct(D.lucro/D.R);$('k-margd').textContent='Lucro líquido de '+brl0(D.lucro)+' (ver DRE)';
+  const st=$('desp-stack'),lg=$('desp-legend');st.innerHTML='';lg.innerHTML='';
+  despCat.forEach(([n,v,c])=>{st.insertAdjacentHTML('beforeend',`<span style="width:${v/desp[5]*100}%;background:${c}" title="${n}"></span>`);
+    lg.insertAdjacentHTML('beforeend',`<span><i style="background:${c}"></i>${n} <b class="num">${brl0(v)}</b></span>`)});
+  // gráfico 6 meses
+  const W=640,H=230,L=56,B=26,T=12,min=30000,max=Math.ceil(Math.max(...rec,...desp)/10000)*10000;
+  const y=v=>T+(H-T-B)*(1-(v-min)/(max-min));const bw=(W-L-10)/6;
+  let s='';
+  for(let g=min;g<=max;g+=10000){s+=`<line x1="${L}" x2="${W}" y1="${y(g)}" y2="${y(g)}" stroke="var(--line)"/><text x="${L-8}" y="${y(g)+4}" text-anchor="end">${(g/1000)}k</text>`}
+  months.forEach((m,i)=>{const x=L+i*bw+bw*0.18,w=bw*0.3;
+    s+=`<rect x="${x}" y="${y(rec[i])}" width="${w}" height="${y(min)-y(rec[i])}" rx="3" fill="var(--teal)"/>`;
+    s+=`<rect x="${x+w+3}" y="${y(desp[i])}" width="${w}" height="${y(min)-y(desp[i])}" rx="3" fill="var(--accent)"/>`;
+    s+=`<text x="${L+i*bw+bw/2}" y="${H-8}" text-anchor="middle">${m}</text>`});
+  $('ch-6m').innerHTML=s;
+}
+
+/* ---------- Cadastro: insumos e produtos (fictícios) ---------- */
+const HOJE=new Date('2026-10-20T12:00:00');
+let ALIQ=0.071; // alíquota efetiva estimada do Simples (ver aba Tributos)
+const fmtQ=(v,u)=>(+v).toLocaleString('pt-BR',{maximumFractionDigits:u==='un'?0:2})+' '+u;
+const dd=s=>{if(!s)return '—';const [y,m,d]=s.split('-');return d+'/'+m+(y!=='2026'?'/'+y.slice(2):'')};
+const diasAte=s=>s?Math.round((new Date(s+'T12:00:00')-HOJE)/864e5):999;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const CATS_INS=['Farinhas e grãos','Laticínios e ovos','Fermentos e temperos','Açúcares e chocolates','Óleos e gorduras','Hortifruti','Embalagens'];
+const CATS_PROD=['Pães','Bolos e doces','Salgados','Bebidas'];
+let insumos=[
+ {id:'farinha',n:'Farinha de trigo',cat:'Farinhas e grãos',u:'kg',c:4.20,s:95,min:200,val:'2026-12-10',forn:'Moinho Boa Vista'},
+ {id:'fermento',n:'Fermento biológico seco',cat:'Fermentos e temperos',u:'kg',c:28.00,s:9,min:4,val:'2026-12-26',forn:'Distribuidora Norte'},
+ {id:'sal',n:'Sal refinado',cat:'Fermentos e temperos',u:'kg',c:2.50,s:25,min:10,val:'2027-06-01',forn:'Distribuidora Norte'},
+ {id:'acucar',n:'Açúcar cristal',cat:'Açúcares e chocolates',u:'kg',c:4.80,s:40,min:20,val:'2027-03-15',forn:'Atacadão RR'},
+ {id:'margarina',n:'Margarina 80% lipídios',cat:'Óleos e gorduras',u:'kg',c:14.00,s:18,min:10,val:'2026-11-30',forn:'Atacadão RR'},
+ {id:'ovos',n:'Ovos',cat:'Laticínios e ovos',u:'un',c:0.75,s:900,min:420,val:'2026-11-02',forn:'Granja Cauamé'},
+ {id:'leite',n:'Leite integral',cat:'Laticínios e ovos',u:'L',c:5.20,s:30,min:25,val:'2026-10-24',forn:'Laticínios Roraima'},
+ {id:'cenoura',n:'Cenoura',cat:'Hortifruti',u:'kg',c:5.50,s:10,min:8,val:'2026-10-25',forn:'Feira do Produtor'},
+ {id:'oleo',n:'Óleo de soja',cat:'Óleos e gorduras',u:'L',c:8.90,s:25,min:12,val:'2027-02-20',forn:'Atacadão RR'},
+ {id:'polvilho',n:'Polvilho azedo',cat:'Farinhas e grãos',u:'kg',c:12.50,s:22,min:15,val:'2027-01-10',forn:'Distribuidora Norte'},
+ {id:'queijo',n:'Queijo meia cura',cat:'Laticínios e ovos',u:'kg',c:42.00,s:14,min:8,val:'2026-11-05',forn:'Laticínios Roraima'},
+ {id:'choco',n:'Chocolate em pó 50%',cat:'Açúcares e chocolates',u:'kg',c:38.00,s:6,min:3,val:'2027-04-01',forn:'Atacadão RR'},
+ {id:'saco',n:'Saco de papel para pão',cat:'Embalagens',u:'un',c:0.06,s:3000,min:1500,val:'',forn:'Embalagens Norte'},
+ {id:'embbolo',n:'Embalagem para bolo',cat:'Embalagens',u:'un',c:1.10,s:120,min:60,val:'',forn:'Embalagens Norte'},
+ {id:'sacopq',n:'Saco para pão de queijo 1 kg',cat:'Embalagens',u:'un',c:0.35,s:120,min:80,val:'',forn:'Embalagens Norte'}
+];
+const DEV_MED={'C360-T01-8F3A':{n:'Forno elétrico',m:{p1:8.2,p2:6.1,p3:5.3,p4:4.2}},'C360-T03-0E44':{n:'Batedeira industrial',m:{}}};
+let MO_HORA=22;
+let produtos=[
+ {id:'p1',sku:'PAO-001',n:'Pão francês',cat:'Pães',uv:'unidade',preco:0.80,rend:300,vend:9000,ficha:[['farinha',9],['fermento',0.18],['sal',0.18],['acucar',0.09],['margarina',0.18]],emb:[['saco',0.17]],dev:'C360-T01-8F3A',kwh:8,min:90,hora:22},
+ {id:'p2',sku:'BOL-001',n:'Bolo de cenoura com cobertura',cat:'Bolos e doces',uv:'bolo',preco:32,rend:6,vend:180,ficha:[['farinha',1.8],['acucar',1.8],['ovos',24],['oleo',1.2],['cenoura',1.8],['choco',0.3]],emb:[['embbolo',1]],dev:'C360-T01-8F3A',kwh:6,min:60,hora:22},
+ {id:'p3',sku:'SAL-001',n:'Pão de queijo',cat:'Salgados',uv:'kg',preco:44,rend:4,vend:120,ficha:[['polvilho',1.6],['queijo',0.8],['ovos',8],['leite',0.6],['oleo',0.3],['sal',0.03]],emb:[['sacopq',1]],dev:'C360-T01-8F3A',kwh:5,min:45,hora:22},
+ {id:'p4',sku:'PAO-002',n:'Pão doce',cat:'Pães',uv:'unidade',preco:1.50,rend:60,vend:2400,ficha:[['farinha',3],['acucar',0.6],['margarina',0.4],['ovos',10],['fermento',0.09],['leite',0.8]],emb:[['saco',0.2]],dev:'C360-T01-8F3A',kwh:4,min:50,hora:22}
+];
+let movs=[
+ ['2026-10-20','Produção','3 lotes de Pão francês · baixa automática de 5 insumos',-138.7],
+ ['2026-10-19','Perda','Leite integral · 2 L · vencimento',-10.4],
+ ['2026-10-18','Entrada','Farinha de trigo · 100 kg · NF 4512 · Moinho Boa Vista',420],
+ ['2026-10-18','Produção','1 lote de Bolo de cenoura · baixa automática de 6 insumos',-66.2],
+ ['2026-10-17','Entrada','Ovos · 360 un · NF 889 · Granja Cauamé',270],
+ ['2026-10-16','Ajuste','Açúcar cristal · contagem física · −1,5 kg',-7.2]
+];
+const insById=id=>insumos.find(i=>i.id===id);
+function custoProd(p){const r=Math.max(1,+p.rend||1);
+  const ingL=p.ficha.reduce((s,[id,q])=>s+(insById(id)?insById(id).c*q:0),0);
+  const ing=ingL/r, emb=p.emb.reduce((s,[id,q])=>s+(insById(id)?insById(id).c*q:0),0);
+  const mo=(+p.min||0)/60*(+p.hora||0)/r, en=(+p.kwh||0)*TAR/r;
+  const tot=ing+emb+mo+en, trib=(+p.preco||0)*ALIQ, lucro=(+p.preco||0)-tot-trib;
+  return {ingL,ing,emb,mo,en,tot,trib,lucro,marg:p.preco>0?lucro/p.preco:0}}
+const mPill=m=>`<span class="pill ${m<0.15?'bad':m<0.3?'warn':'ok'} num">${pct(m)}</span>`;
+
+/* ---------- Produtos: lista ---------- */
+$('pr-cat').innerHTML='<option value="">Todas as categorias</option>'+CATS_PROD.map(c=>`<option>${c}</option>`).join('');
+function prList(){const q=$('pr-q').value.trim().toLowerCase(),cat=$('pr-cat').value;
+  const list=produtos.filter(p=>(!cat||p.cat===cat)&&(!q||p.n.toLowerCase().includes(q)||p.sku.toLowerCase().includes(q)));
+  $('pr-tab').innerHTML=list.length?list.map(p=>{const c=custoProd(p);return `<tr><td><b>${esc(p.n)}</b><br><small class="note" style="font-family:var(--mono)">${esc(p.sku)} · por ${p.uv}</small></td><td>${p.cat}</td><td class="r num">${brl(p.preco)}</td><td class="r num">${brl(c.tot)}</td><td class="r">${mPill(c.marg)}</td><td class="r num">${(+p.vend).toLocaleString('pt-BR')}</td><td class="r num">${brl0(c.lucro*p.vend)}</td><td class="r"><button class="btn ghost" style="padding:5px 10px;font-size:13px" data-ed="${p.id}">Editar</button></td></tr>`}).join(''):'<tr><td colspan="8" class="note">Nenhum produto encontrado com esse filtro.</td></tr>';
+  $('pr-tab').querySelectorAll('[data-ed]').forEach(b=>b.onclick=()=>openEditor(b.dataset.ed));
+  let lt=0,rt=0,best=null,att=0;produtos.forEach(p=>{const c=custoProd(p);lt+=c.lucro*p.vend;rt+=p.preco*p.vend;if(!best||c.lucro*p.vend>best[1])best=[p.n,c.lucro*p.vend];if(c.marg<0.3)att++});
+  $('pk-n').textContent=produtos.length;$('pk-cat').textContent=new Set(produtos.map(p=>p.cat)).size+' categorias';
+  $('pk-m').textContent=pct(rt?lt/rt:0);$('pk-l').textContent=brl0(lt);$('pk-best').textContent=best?'Maior lucro: '+best[0]:'';$('pk-a').textContent=att}
+$('pr-q').oninput=prList;$('pr-cat').onchange=prList;
+
+/* ---------- Produtos: editor ---------- */
+let draft=null,editId=null,delArm=false;
+$('pe-cat').innerHTML=CATS_PROD.map(c=>`<option>${c}</option>`).join('');
+$('pe-dev').innerHTML=Object.entries(DEV_MED).map(([id,d])=>`<option value="${id}">${d.n} · ${id}</option>`).join('')+'<option value="">Sem equipamento medido</option>';
+function openEditor(id){editId=id;delArm=false;
+  const p=id?produtos.find(x=>x.id===id):{id:'p'+Date.now(),sku:'PRD-'+String(produtos.length+1).padStart(3,'0'),n:'',cat:'Pães',uv:'unidade',preco:0,rend:1,vend:0,ficha:[],emb:[],dev:'C360-T01-8F3A',kwh:0,min:0,hora:MO_HORA};
+  draft=JSON.parse(JSON.stringify(p));
+  $('pe-title').textContent=id?'Editar '+p.n:'Novo produto';$('pe-del').hidden=!id;$('pe-del').textContent='Excluir';
+  ['n','sku','cat','uv','preco','vend','rend','dev','kwh','min','hora'].forEach(k=>$('pe-'+k).value=draft[k]);
+  $('pr-list-mode').hidden=true;$('pr-edit-mode').hidden=false;renderFicha();renderEmb();devNote();sumUpd();window.scrollTo({top:0});
+  if(!id)$('pe-n').focus()}
+function closeEditor(){$('pr-edit-mode').hidden=true;$('pr-list-mode').hidden=false;prList()}
+const numKeys=['preco','vend','rend','kwh','min','hora'];
+['n','sku','cat','uv','preco','vend','rend','dev','kwh','min','hora'].forEach(k=>$('pe-'+k).addEventListener('input',e=>{draft[k]=numKeys.includes(k)?(e.target.value===''?'':+e.target.value):e.target.value;if(k==='dev')devNote();if(k==='uv'||k==='rend')renderFicha();sumUpd()}));
+function insOpts(sel,cats,used){return insumos.filter(i=>cats.includes(i.cat)).map(i=>`<option value="${i.id}" ${i.id===sel?'selected':''} ${used.includes(i.id)&&i.id!==sel?'disabled':''}>${esc(i.n)} (${i.u})</option>`).join('')}
+const CAT_ING=CATS_INS.filter(c=>c!=='Embalagens');
+function renderFicha(){$('pe-rendu').textContent=draft.uv+(draft.rend>1&&draft.uv!=='kg'?'s':'');
+  const used=draft.ficha.map(f=>f[0]);
+  $('pe-ficha').innerHTML=draft.ficha.length?draft.ficha.map(([id,q],i)=>{const it=insById(id);return `<tr><td><select data-fi="${i}" style="min-width:170px">${insOpts(id,CAT_ING,used)}</select></td><td class="r"><div class="row" style="justify-content:flex-end;gap:6px;flex-wrap:nowrap"><input type="number" data-fq="${i}" value="${q}" step="0.01" min="0" style="width:90px;text-align:right"><span class="note" style="width:18px">${it?it.u:''}</span></div></td><td class="r num note">${it?brl(it.c)+'/'+it.u:''}</td><td class="r num" id="fc-${i}">${it?brl(it.c*q):''}</td><td class="r"><button class="btn ghost" style="padding:4px 8px" data-fx="${i}" aria-label="Remover">✕</button></td></tr>`}).join(''):'<tr><td colspan="5" class="note">Nenhum ingrediente ainda. Adicione os itens usados em um lote.</td></tr>';
+  $('pe-ficha').querySelectorAll('[data-fi]').forEach(s=>s.onchange=()=>{draft.ficha[s.dataset.fi][0]=s.value;renderFicha();sumUpd()});
+  $('pe-ficha').querySelectorAll('[data-fq]').forEach(s=>s.oninput=()=>{const i=+s.dataset.fq;draft.ficha[i][1]=+s.value||0;const it=insById(draft.ficha[i][0]);$('fc-'+i).textContent=brl(it.c*draft.ficha[i][1]);sumUpd()});
+  $('pe-ficha').querySelectorAll('[data-fx]').forEach(b=>b.onclick=()=>{draft.ficha.splice(+b.dataset.fx,1);renderFicha();sumUpd()})}
+function renderEmb(){const used=draft.emb.map(f=>f[0]);
+  $('pe-emb').innerHTML=draft.emb.length?draft.emb.map(([id,q],i)=>{const it=insById(id);return `<tr><td><select data-ei="${i}" style="min-width:170px">${insOpts(id,['Embalagens'],used)}</select></td><td class="r"><input type="number" data-eq="${i}" value="${q}" step="0.01" min="0" style="width:90px;text-align:right"></td><td class="r num" id="ec-${i}">${it?brl(it.c*q):''}</td><td class="r"><button class="btn ghost" style="padding:4px 8px" data-ex="${i}" aria-label="Remover">✕</button></td></tr>`}).join(''):'<tr><td colspan="4" class="note">Sem embalagem.</td></tr>';
+  $('pe-emb').querySelectorAll('[data-ei]').forEach(s=>s.onchange=()=>{draft.emb[s.dataset.ei][0]=s.value;renderEmb();sumUpd()});
+  $('pe-emb').querySelectorAll('[data-eq]').forEach(s=>s.oninput=()=>{const i=+s.dataset.eq;draft.emb[i][1]=+s.value||0;$('ec-'+i).textContent=brl(insById(draft.emb[i][0]).c*draft.emb[i][1]);sumUpd()});
+  $('pe-emb').querySelectorAll('[data-ex]').forEach(b=>b.onclick=()=>{draft.emb.splice(+b.dataset.ex,1);renderEmb();sumUpd()})}
+$('pe-addi').onclick=()=>{const used=draft.ficha.map(f=>f[0]);const nx=insumos.find(i=>CAT_ING.includes(i.cat)&&!used.includes(i.id));if(!nx)return toast('Todos os ingredientes já estão na ficha.');draft.ficha.push([nx.id,0]);renderFicha();sumUpd();const ins=$('pe-ficha').querySelectorAll('[data-fq]');ins[ins.length-1].focus()};
+$('pe-adde').onclick=()=>{const used=draft.emb.map(f=>f[0]);const nx=insumos.find(i=>i.cat==='Embalagens'&&!used.includes(i.id));if(!nx)return toast('Todas as embalagens já foram adicionadas.');draft.emb.push([nx.id,1]);renderEmb();sumUpd()};
+function medAtual(){const d=DEV_MED[draft.dev];return d&&d.m[draft.id]}
+function devNote(){const m=medAtual();$('pe-devnote').textContent=draft.dev?(m?'· medido: '+m.toLocaleString('pt-BR')+' kWh':'· ainda sem fornadas medidas'):'· informado manualmente';$('pe-usemed').disabled=!m}
+$('pe-usemed').onclick=()=>{const m=medAtual();if(m){draft.kwh=m;$('pe-kwh').value=m;sumUpd();toast('Energia atualizada com a média medida: '+m.toLocaleString('pt-BR')+' kWh por lote.')}};
+function validar(){const e=[],w=[];
+  if(!String(draft.n).trim())e.push('Informe o nome do produto.');
+  if(!String(draft.sku).trim())e.push('Informe o código do produto.');
+  else if(produtos.some(p=>p.sku.toLowerCase()===String(draft.sku).trim().toLowerCase()&&p.id!==editId))e.push('Já existe um produto com o código '+draft.sku+'.');
+  if(!(draft.preco>0))e.push('Informe o preço de venda.');
+  if(!(draft.rend>=1))e.push('O lote precisa render pelo menos 1 '+draft.uv+'.');
+  if(!draft.ficha.length)e.push('Adicione pelo menos um ingrediente à ficha técnica.');
+  if(draft.ficha.some(f=>!(f[1]>0)))e.push('Há ingrediente com quantidade zero na ficha.');
+  const c=custoProd(draft);
+  if(draft.preco>0&&c.lucro<0)w.push('O preço não cobre o custo e os tributos: cada venda dá prejuízo.');
+  else if(draft.preco>0&&c.marg<0.3)w.push('Margem abaixo de 30%. Confira o preço ou o rendimento do lote.');
+  if(!draft.emb.length)w.push('Produto sem embalagem cadastrada.');
+  if(!(draft.min>0))w.push('Sem tempo de mão de obra, o custo fica subestimado.');
+  if(draft.dev&&medAtual()&&Math.abs(draft.kwh-medAtual())/medAtual()>0.15)w.push('A energia informada difere mais de 15% da média medida pela tomada.');
+  return {e,w}}
+function cifDraft(){if(!DR)return 0;const list=produtos.filter(p=>p.id!==draft.id).concat([draft]).filter(p=>p.rend>0);const r=rateio(list,DR.CIF)[draft.id];return r?r.unit:0}
+function sumUpd(){const c=custoProd(draft);
+  $('ps-u').textContent=draft.uv;$('ps-tot').textContent=brl(c.tot);
+  const parts=[['Ingredientes',c.ing,'var(--teal)'],['Embalagem',c.emb,'#C98A5A'],['Mão de obra',c.mo,'#6B8CC7'],['Energia medida',c.en,'var(--accent)']];
+  $('ps-stack').innerHTML=c.tot?parts.map(x=>`<span style="width:${x[1]/c.tot*100}%;background:${x[2]}"></span>`).join(''):'';
+  $('ps-tab').innerHTML=parts.map(x=>`<tr><td><i style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${x[2]};margin-right:8px"></i>${x[0]}</td><td class="r num">${brl(x[1])}</td></tr>`).join('')+
+   `<tr><td><b>Custo de produção</b></td><td class="r num"><b>${brl(c.tot)}</b></td></tr><tr><td>Tributos sobre a venda (${pct(ALIQ)})</td><td class="r num">${brl(c.trib)}</td></tr><tr><td>Preço de venda</td><td class="r num">${brl(+draft.preco||0)}</td></tr><tr><td><b>Lucro por ${draft.uv}</b></td><td class="r num" style="color:${c.lucro<0?'var(--bad)':'var(--good)'}"><b>${brl(c.lucro)}</b></td></tr><tr><td>Custos indiretos rateados (aba Custeio)</td><td class="r num">${brl(cifDraft())}</td></tr><tr><td><b>Lucro por absorção</b></td><td class="r num"><b>${brl(c.lucro-cifDraft())}</b></td></tr><tr><td>Lucro previsto no mês (antes dos indiretos)</td><td class="r num">${brl0(c.lucro*(+draft.vend||0))}</td></tr>`;
+  const m=c.marg,col=m<0.15?'var(--bad)':m<0.3?'var(--warn)':'var(--good)';
+  $('ps-marg').innerHTML=`<span class="i" style="background:${col}"></span><div><b>Margem após tributos: ${draft.preco>0?pct(m):'—'}</b><p class="note">Custo do lote inteiro: ${brl(c.tot*(+draft.rend||1))}.</p></div>`;
+  const alvo=+$('ps-alvo').value/100;$('ps-alvov').textContent=pct(alvo);const sug=c.tot/(1-alvo-ALIQ);$('ps-sug').textContent=sug>0&&isFinite(sug)?brl(sug):'—';
+  const {e,w}=validar();
+  $('ps-val').innerHTML=(e.length?`<div class="alert"><span class="i" style="background:var(--bad)"></span><div><b>Falta para salvar</b><ul style="margin:4px 0 0;padding-left:18px" class="note">${e.map(x=>`<li>${x}</li>`).join('')}</ul></div></div>`:'')+(w.length?`<div class="alert" style="margin-top:8px"><span class="i" style="background:var(--warn)"></span><div><b>Pontos de atenção</b><ul style="margin:4px 0 0;padding-left:18px" class="note">${w.map(x=>`<li>${x}</li>`).join('')}</ul></div></div>`:'');
+  $('pe-save').disabled=!!e.length}
+$('ps-alvo').oninput=sumUpd;
+$('ps-apply').onclick=()=>{const c=custoProd(draft),alvo=+$('ps-alvo').value/100;const sug=Math.ceil(c.tot/(1-alvo-ALIQ)*20)/20;if(!(sug>0))return;draft.preco=sug;$('pe-preco').value=sug;sumUpd();toast('Preço ajustado para '+brl(sug)+'.')};
+$('pe-save').onclick=()=>{if(validar().e.length)return;draft.n=draft.n.trim();draft.sku=draft.sku.trim().toUpperCase();
+  const i=produtos.findIndex(p=>p.id===editId);if(i>=0)produtos[i]=draft;else produtos.push(draft);
+  toast((i>=0?'Alterações salvas em ':'Produto cadastrado: ')+draft.n+'.');closeEditor();refreshAll()};
+$('pe-back').onclick=closeEditor;$('pr-new').onclick=()=>openEditor(null);
+$('pe-del').onclick=()=>{if(!delArm){delArm=true;$('pe-del').textContent='Confirmar exclusão';$('pe-del').style.color='var(--bad)';return}
+  const n=draft.n;produtos=produtos.filter(p=>p.id!==editId);$('pe-del').style.color='';toast(n+' foi excluído.');closeEditor();refreshAll()};
+
+/* ---------- Estoque ---------- */
+function consumoMes(id){let t=0;const ii=insById(id);if(ii&&ii.preco>0)t+=ii.vend;produtos.forEach(p=>{p.ficha.forEach(([i,q])=>{if(i===id)t+=q/p.rend*p.vend});p.emb.forEach(([i,q])=>{if(i===id)t+=q*p.vend})});return t}
+function stat(i){const dv=diasAte(i.val);
+  if(i.s<=0)return['bad','Sem estoque'];if(i.s<i.min*0.5)return['bad','Crítico'];if(i.s<i.min)return['warn','Abaixo do mínimo'];if(i.val&&dv<=7)return['warn','Vencendo'];return['ok','Normal']}
+function estoque(){const q=$('es-q').value.trim().toLowerCase(),f=$('es-f').value;
+  let val=0,bx=0,ven=0,cons=0;insumos.forEach(i=>{val+=i.s*i.c;if(i.s<i.min)bx++;if(i.val&&diasAte(i.val)<=7)ven++;cons+=consumoMes(i.id)*i.c});
+  $('ek-val').textContent=brl0(val);$('ek-n').textContent=insumos.length+' insumos cadastrados';$('ek-min').textContent=bx;$('ek-ven').textContent=ven;$('ek-cons').textContent=brl0(cons);
+  const list=insumos.filter(i=>(!q||i.n.toLowerCase().includes(q))&&(f==='all'||(f==='baixo'&&i.s<i.min)||(f==='ven'&&i.val&&diasAte(i.val)<=7)));
+  $('es-tab').innerHTML=list.length?list.map(i=>{const st=stat(i),cm=consumoMes(i.id),dias=cm>0?i.s/(cm/30):null,dv=diasAte(i.val);
+    return `<tr><td><b>${esc(i.n)}</b><br><small class="note">${i.cat} · ${esc(i.forn)}</small></td><td class="r num">${fmtQ(i.s,i.u)}</td><td class="r num note">${fmtQ(i.min,i.u)}</td><td class="r num" style="color:${dias!==null&&dias<5?'var(--bad)':'inherit'}">${dias===null?'—':Math.floor(dias)+' dias'}</td><td class="r num">${brl(i.c)}</td><td class="r num">${brl0(i.s*i.c)}</td><td class="num" style="color:${i.val&&dv<=7?'var(--warn)':'inherit'}">${dd(i.val)}${i.val&&dv<=7?' <small>('+(dv<=0?'vence hoje':dv+' d')+')</small>':''}</td><td><span class="pill ${st[0]}"><span class="dot"></span>${st[1]}</span></td></tr>`}).join(''):'<tr><td colspan="8" class="note">Nenhum insumo com esse filtro.</td></tr>';
+  const sug=insumos.map(i=>{const dia=consumoMes(i.id)/30;const need=i.min+dia*15-i.s;return need>0&&(i.s<i.min||(dia>0&&i.s/dia<7))?[i,i.u==='un'||i.u==='L'?Math.ceil(need):Math.ceil(need*2)/2]:null}).filter(Boolean);
+  $('es-sug').innerHTML=sug.length?sug.map(([i,qn])=>`<tr><td>${esc(i.n)}<br><small class="note">${esc(i.forn)}</small></td><td class="r num">${fmtQ(qn,i.u)}</td><td class="r num">${brl(qn*i.c)}</td></tr>`).join(''):'<tr><td colspan="3" class="note">Nada para comprar agora.</td></tr>';
+  $('es-sugt').textContent=brl(sug.reduce((s,[i,qn])=>s+qn*i.c,0));
+  const tcol={Entrada:'ok',Produção:'demo',Perda:'bad',Ajuste:'warn',Cadastro:'ok'};
+  $('es-mov').innerHTML=movs.map(m=>`<tr><td class="num">${dd(m[0])}</td><td><span class="pill ${tcol[m[1]]||'ok'}">${m[1]}</span></td><td>${esc(m[2])}</td><td class="r num" style="color:${m[3]<0?'var(--bad)':'var(--good)'}">${m[3]?brl(m[3]):'—'}</td></tr>`).join('');
+  if(!$('pr-list-mode').hidden)prList()}
+$('es-q').oninput=estoque;$('es-f').onchange=estoque;
+
+/* ---------- Estoque: formulários de movimentação ---------- */
+const EF=[['entrada','Entrada de compra'],['producao','Produção'],['perda','Perda ou ajuste'],['novo','Novo insumo']];
+let efMode='entrada';
+$('ef-tabs').innerHTML=EF.map(([k,n])=>`<button type="button" class="btn ghost" data-ef="${k}" style="padding:6px 12px;font-size:13px">${n}</button>`).join('');
+$('ef-tabs').querySelectorAll('[data-ef]').forEach(b=>b.onclick=()=>{efMode=b.dataset.ef;efRender()});
+const insSel=id=>`<select id="${id}">${insumos.map(i=>`<option value="${i.id}">${esc(i.n)} (${i.u})</option>`).join('')}</select>`;
+function efRender(){$('ef-tabs').querySelectorAll('[data-ef]').forEach(b=>{const on=b.dataset.ef===efMode;b.style.background=on?'var(--fg)':'transparent';b.style.color=on?'var(--bg)':'var(--fg)';b.setAttribute('aria-selected',on)});
+  $('ef-msg').innerHTML='';const F=$('ef-form');
+  if(efMode==='entrada'){F.innerHTML=`<label class="f">Insumo${insSel('fe-i')}</label><label class="f">Quantidade <span class="note" id="fe-u"></span><input type="number" id="fe-q" step="0.01" min="0" value="50"></label><label class="f">Valor total da nota (R$)<input type="number" id="fe-v" step="0.01" min="0"></label><label class="f">Fornecedor<input type="text" id="fe-f"></label><label class="f">Nº da nota fiscal<input type="text" id="fe-nf" value="4623"></label><label class="f">Validade do lote<input type="date" id="fe-val" value="2026-12-20"></label><div class="f" style="grid-column:span 2"><span class="note" id="fe-prev"></span></div><button class="btn acc" type="submit">Registrar entrada</button>`;
+    const sync=()=>{const i=insById($('fe-i').value);$('fe-u').textContent='('+i.u+')';$('fe-f').value=i.forn;$('fe-v').value=(+$('fe-q').value*i.c*1.04).toFixed(2);prev()};
+    const prev=()=>{const i=insById($('fe-i').value),q=+$('fe-q').value,v=+$('fe-v').value;if(q>0&&v>0){const nc=(i.s*i.c+v)/(i.s+q);$('fe-prev').textContent=`Preço desta compra: ${brl(v/q)}/${i.u}. O custo médio passa de ${brl(i.c)} para ${brl(nc)}.`}else $('fe-prev').textContent=''};
+    $('fe-i').onchange=sync;$('fe-q').oninput=()=>{const i=insById($('fe-i').value);$('fe-v').value=(+$('fe-q').value*i.c*1.04).toFixed(2);prev()};$('fe-v').oninput=prev;sync()}
+  else if(efMode==='producao'){F.innerHTML=`<label class="f">Produto<select id="fp-p">${produtos.map(p=>`<option value="${p.id}">${esc(p.n)}</option>`).join('')}</select></label><label class="f">Lotes produzidos<input type="number" id="fp-l" min="1" step="1" value="2"></label><div class="f" style="grid-column:span 2"><span class="note" id="fp-prev"></span></div><button class="btn acc" type="submit">Registrar produção</button>`;
+    const prev=()=>{const p=produtos.find(x=>x.id===$('fp-p').value),l=+$('fp-l').value||0;if(!p)return;$('fp-prev').textContent=`Rende ${(p.rend*l).toLocaleString('pt-BR')} ${p.uv}${p.uv!=='kg'?'s':''}. Baixa automática de ${p.ficha.length+p.emb.length} insumos, custo de ${brl(custoProd(p).tot*p.rend*l)}.`};
+    $('fp-p').onchange=prev;$('fp-l').oninput=prev;prev()}
+  else if(efMode==='perda'){F.innerHTML=`<label class="f">Insumo${insSel('fl-i')}</label><label class="f">Quantidade <span class="note" id="fl-u"></span><input type="number" id="fl-q" step="0.01" min="0" value="1"></label><label class="f">Motivo<select id="fl-m"><option>Vencimento</option><option>Quebra ou avaria</option><option>Contagem física (ajuste)</option><option>Uso interno</option></select></label><button class="btn acc" type="submit">Registrar saída</button>`;
+    const sync=()=>{const i=insById($('fl-i').value);$('fl-u').textContent='(saldo '+fmtQ(i.s,i.u)+')'};$('fl-i').onchange=sync;sync()}
+  else{F.innerHTML=`<label class="f">Nome<input type="text" id="fn-n" value="Coco ralado"></label><label class="f">Categoria<select id="fn-c">${CATS_INS.map(c=>`<option ${c==='Açúcares e chocolates'?'selected':''}>${c}</option>`).join('')}</select></label><label class="f">Unidade<select id="fn-u"><option>kg</option><option>L</option><option>un</option></select></label><label class="f">Custo por unidade (R$)<input type="number" id="fn-cu" step="0.01" min="0" value="32"></label><label class="f">Saldo inicial<input type="number" id="fn-s" step="0.01" min="0" value="3"></label><label class="f">Estoque mínimo<input type="number" id="fn-m" step="0.01" min="0" value="2"></label><label class="f">Validade<input type="date" id="fn-v" value="2027-02-15"></label><label class="f">Fornecedor<input type="text" id="fn-f" value="Atacadão RR"></label><div></div><div></div><div></div><button class="btn acc" type="submit">Cadastrar insumo</button>`}}
+function msg(kind,html){$('ef-msg').innerHTML=`<div class="alert"><span class="i" style="background:var(--${kind})"></span><div>${html}</div></div>`}
+$('ef-form').addEventListener('submit',e=>{e.preventDefault();
+  if(efMode==='entrada'){const i=insById($('fe-i').value),q=+$('fe-q').value,v=+$('fe-v').value;if(!(q>0&&v>0))return msg('bad','<b>Informe a quantidade e o valor da nota.</b>');
+    const old=i.c,before=produtos.filter(p=>p.ficha.some(f=>f[0]===i.id)||p.emb.some(f=>f[0]===i.id)).map(p=>[p,custoProd(p).marg]);
+    i.c=(i.s*i.c+v)/(i.s+q);i.s+=q;if($('fe-val').value)i.val=$('fe-val').value;i.forn=$('fe-f').value||i.forn;
+    movs.unshift(['2026-10-20','Entrada',`${i.n} · ${fmtQ(q,i.u)} · NF ${$('fe-nf').value} · ${i.forn}`,v]);
+    const imp=before.map(([p,m0])=>{const m1=custoProd(p).marg;return `<li>${esc(p.n)}: margem de ${pct(m0)} para ${pct(m1)}</li>`}).join('');
+    msg('teal',`<b>Entrada registrada.</b> Novo saldo de ${esc(i.n)}: ${fmtQ(i.s,i.u)}. Custo médio de ${brl(old)} para ${brl(i.c)}.${imp?`<ul class="note" style="margin:4px 0 0;padding-left:18px">${imp}</ul>`:''}`)}
+  else if(efMode==='producao'){const p=produtos.find(x=>x.id===$('fp-p').value),l=+$('fp-l').value;if(!p||!(l>=1))return msg('bad','<b>Escolha o produto e o número de lotes.</b>');
+    const need=[...p.ficha.map(([id,q])=>[id,q*l]),...p.emb.map(([id,q])=>[id,q*p.rend*l])];
+    const falta=need.filter(([id,q])=>insById(id).s<q);
+    if(falta.length)return msg('bad',`<b>Estoque insuficiente para ${l} lote${l>1?'s':''} de ${esc(p.n)}.</b><ul class="note" style="margin:4px 0 0;padding-left:18px">${falta.map(([id,q])=>{const i=insById(id);return `<li>${esc(i.n)}: precisa de ${fmtQ(q,i.u)}, há ${fmtQ(i.s,i.u)}</li>`}).join('')}</ul><p class="note">Registre a compra antes ou produza menos lotes.</p>`);
+    const custo=custoProd(p).tot*p.rend*l;need.forEach(([id,q])=>insById(id).s=Math.max(0,+(insById(id).s-q).toFixed(3)));
+    movs.unshift(['2026-10-20','Produção',`${l} lote${l>1?'s':''} de ${p.n} · baixa automática de ${need.length} insumos`,-custo]);
+    const alert=need.map(([id])=>insById(id)).filter(i=>i.s<i.min);
+    msg('teal',`<b>Produção registrada.</b> ${(p.rend*l).toLocaleString('pt-BR')} ${p.uv}${p.uv!=='kg'?'s':''} de ${esc(p.n)}, custo de ${brl(custo)}. Os insumos foram baixados pela ficha técnica.${alert.length?`<p class="note" style="color:var(--warn)">Ficaram abaixo do mínimo: ${alert.map(i=>esc(i.n)).join(', ')}.</p>`:''}`)}
+  else if(efMode==='perda'){const i=insById($('fl-i').value),q=+$('fl-q').value,m=$('fl-m').value;if(!(q>0))return msg('bad','<b>Informe a quantidade.</b>');if(q>i.s)return msg('bad',`<b>Quantidade maior que o saldo.</b> Há ${fmtQ(i.s,i.u)} de ${esc(i.n)}.`);
+    i.s=+(i.s-q).toFixed(3);const tipo=m.startsWith('Contagem')?'Ajuste':'Perda';movs.unshift(['2026-10-20',tipo,`${i.n} · ${fmtQ(q,i.u)} · ${m.toLowerCase()}`,-q*i.c]);
+    msg('warn',`<b>${tipo} registrada.</b> ${brl(q*i.c)} saem do estoque e entram como despesa do mês. ${tipo==='Perda'?'Perdas frequentes por vencimento indicam compra acima do consumo.':''}`)}
+  else{const n=$('fn-n').value.trim();if(!n)return msg('bad','<b>Informe o nome do insumo.</b>');if(insumos.some(i=>i.n.toLowerCase()===n.toLowerCase()))return msg('bad','<b>Esse insumo já está cadastrado.</b>');
+    const it={id:'i'+Date.now(),n,cat:$('fn-c').value,u:$('fn-u').value,c:+$('fn-cu').value||0,s:+$('fn-s').value||0,min:+$('fn-m').value||0,val:$('fn-v').value,forn:$('fn-f').value||'—'};insumos.push(it);
+    movs.unshift(['2026-10-20','Cadastro',`Novo insumo: ${n} · saldo inicial ${fmtQ(it.s,it.u)}`,it.s*it.c]);
+    msg('teal',`<b>${esc(n)} cadastrado.</b> Ele já aparece na lista de ingredientes ao montar a ficha técnica de um produto.`)}
+  refreshAll();if(efMode!=='novo')efRender2()});
+function efRender2(){const keep=$('ef-msg').innerHTML;efRender();$('ef-msg').innerHTML=keep}
+let toastT;function toast(t){const el=$('toast');el.textContent=t;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>el.hidden=true,3200)}
+
+/* ---------- Funcionários e folha (tabelas 2026) ---------- */
+const SAL_MIN=1621, INSS_T=[[1621,.075,0],[2902.84,.09,24.32],[4354.27,.12,111.40],[8475.55,.14,198.49]];
+const IR_T=[[2428.80,0,0],[2826.65,.075,182.16],[3751.05,.15,394.16],[4664.68,.225,675.49],[Infinity,.275,908.73]];
+const IR_DEP=189.59, IR_SIMPL=607.20, VT_PASS=4.00, DIAS_UTEIS=26, DOM_FER=5;
+let funcs=[
+ {id:'f1',n:'Joana Ribeiro',cargo:'Padeira chefe',setor:'Produção',adm:'2019-03-11',sal:3000,jor:220,dep:1,vt:0,he:4,not:40,fal:0},
+ {id:'f2',n:'Carlos Souza',cargo:'Padeiro',setor:'Produção',adm:'2022-08-01',sal:2300,jor:220,dep:0,vt:1,he:0,not:40,fal:0},
+ {id:'f3',n:'Ana Lima',cargo:'Confeiteira',setor:'Produção',adm:'2025-02-03',sal:2100,jor:220,dep:2,vt:1,he:6,not:0,fal:0},
+ {id:'f4',n:'Pedro Alves',cargo:'Atendente de balcão',setor:'Atendimento',adm:'2024-11-04',sal:1700,jor:220,dep:0,vt:1,he:0,not:0,fal:1},
+ {id:'f5',n:'Luíza Martins',cargo:'Operadora de caixa',setor:'Atendimento',adm:'2023-05-15',sal:1750,jor:220,dep:0,vt:1,he:0,not:0,fal:0}
+];
+function inss(b){let t=0;for(const [lim,a,d] of INSS_T){if(b<=lim)return Math.max(0,b*a-d);t=lim*a-d}return t}
+function irrf(bruto,inssV,dep){const bLeg=bruto-inssV-dep*IR_DEP,bSim=bruto-IR_SIMPL,base=Math.max(0,Math.min(bLeg,bSim));
+  let imp=0;for(const [lim,a,d] of IR_T){if(base<=lim){imp=Math.max(0,base*a-d);break}}
+  let red=0;if(bruto<=5000)red=Math.min(imp,312.89);else if(bruto<=7350)red=Math.min(imp,Math.max(0,978.62-0.133145*bruto));
+  return {base,imp,red,dev:Math.max(0,imp-red),simpl:bSim<bLeg}}
+function calcF(f){const hn=f.sal/f.jor;
+  const he=f.he*hn*1.5, an=f.not*hn*0.2, dsr=(he+an)/DIAS_UTEIS*DOM_FER, fal=f.fal*f.sal/30;
+  const prov=f.sal+he+an+dsr, base=prov-fal, ins=inss(base), ir=irrf(base,ins,f.dep);
+  const vtCusto=f.vt?2*VT_PASS*22:0, vtDesc=Math.min(vtCusto,f.sal*0.06), liq=base-ins-ir.dev-vtDesc;
+  const fgts=base*0.08, fer=base/12*4/3, dec=base/12, fgtsP=(fer+dec)*0.08, vtEmp=vtCusto-vtDesc;
+  const caixa=base+fgts+vtEmp, total=caixa+fer+dec+fgtsP;
+  return {hn,he,an,dsr,fal,prov,base,ins,ir,vtCusto,vtDesc,liq,fgts,fer,dec,fgtsP,vtEmp,caixa,total}}
+function folhaTot(){return funcs.reduce((a,f)=>{const c=calcF(f);for(const k of ['base','ins','liq','fgts','fer','dec','fgtsP','vtEmp','vtDesc','caixa','total'])a[k]=(a[k]||0)+c[k];a.ir=(a.ir||0)+c.ir.dev;return a},{})}
+const addMonths=(s,m)=>{const d=new Date(s+'T12:00:00');d.setMonth(d.getMonth()+m);return d.toISOString().slice(0,10)};
+const addDays=(s,n)=>{const d=new Date(s+'T12:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)};
+function ferias(f){let k=0;while(addMonths(f.adm,12*(k+1))<='2026-10-20')k++;
+  if(k===0)return {ini:f.adm,fimAq:addMonths(f.adm,12),lim:addMonths(f.adm,24),st:['ok','Em aquisição'],dl:999};
+  const ini=addMonths(f.adm,12*(k-1)),fimAq=addMonths(f.adm,12*k),lim=addMonths(f.adm,12*(k+1)),dl=diasAte(lim); // demo: considera os períodos anteriores já gozados
+  return {ini,fimAq,lim,dl,st:dl<0?['bad','Vencidas, pagar em dobro']:dl<=60?['bad','Conceder até '+dd(lim)]:['warn','Programar']}}
+const FS=[['equipe','Equipe'],['folha','Folha do mês'],['enc','Encargos e custo da hora'],['agenda','Férias e obrigações']];
+let fsMode='equipe',holId='f1',fEdit=null,fDelArm=false;
+$('fs-tabs').innerHTML=FS.map(([k,n])=>`<button type="button" class="btn ghost" data-fs="${k}" style="padding:6px 12px;font-size:13px">${n}</button>`).join('');
+$('fs-tabs').querySelectorAll('[data-fs]').forEach(b=>b.onclick=()=>{fsMode=b.dataset.fs;funcionarios()});
+function funcionarios(){
+  $('fs-tabs').querySelectorAll('[data-fs]').forEach(b=>{const on=b.dataset.fs===fsMode;b.style.background=on?'var(--fg)':'transparent';b.style.color=on?'var(--bg)':'var(--fg)'});
+  FS.forEach(([k])=>$('fs-'+k).hidden=k!==fsMode);
+  const T=folhaTot();
+  $('fk-n').textContent=funcs.length;const sets={};funcs.forEach(f=>sets[f.setor]=(sets[f.setor]||0)+1);$('fk-set').textContent=Object.entries(sets).map(([s,n])=>n+' em '+s.toLowerCase()).join(' · ');
+  $('fk-c').textContent=brl0(T.total||0);$('fk-l').textContent=brl0(T.liq||0);$('fk-p').textContent=pct((T.total||0)/(DR?DR.R:1));
+  // equipe
+  $('fu-tab').innerHTML=funcs.length?funcs.map(f=>{const c=calcF(f),fe=ferias(f);return `<tr><td><b>${esc(f.n)}</b><br><small class="note">${esc(f.cargo)}</small></td><td>${f.setor}</td><td class="num">${dd(f.adm)}</td><td class="r num">${brl(f.sal)}</td><td class="r num">${brl(c.total)}</td><td><span class="pill ${fe.st[0]}">${fe.st[1]}</span></td><td class="r"><button class="btn ghost" style="padding:5px 10px;font-size:13px" data-fe="${f.id}">Editar</button></td></tr>`}).join(''):'<tr><td colspan="7" class="note">Nenhum funcionário cadastrado.</td></tr>';
+  $('fu-tab').querySelectorAll('[data-fe]').forEach(b=>b.onclick=()=>openF(b.dataset.fe));
+  // folha
+  $('fo-tab').innerHTML=funcs.map(f=>{const c=calcF(f);return `<tr style="cursor:pointer;${f.id===holId?'background:var(--surface-2)':''}" data-h="${f.id}"><td><b>${esc(f.n)}</b><br><small class="note">${esc(f.cargo)}</small></td><td class="r num">${brl(f.sal)}</td><td class="r num">${c.he+c.an+c.dsr?brl(c.he+c.an+c.dsr):'—'}</td><td class="r num">${c.fal?'−'+brl(c.fal):'—'}</td><td class="r num">−${brl(c.ins)}</td><td class="r num">${c.ir.dev?'−'+brl(c.ir.dev):'Isento'}</td><td class="r num">${c.vtDesc?'−'+brl(c.vtDesc):'—'}</td><td class="r num"><b>${brl(c.liq)}</b></td></tr>`}).join('');
+  $('fo-tab').querySelectorAll('[data-h]').forEach(r=>r.onclick=()=>{holId=r.dataset.h;funcionarios()});
+  $('fo-tot').innerHTML=`<tr><td><b>Total</b></td><td></td><td></td><td></td><td class="r num"><b>−${brl(T.ins||0)}</b></td><td class="r num"><b>${T.ir?'−'+brl(T.ir):'—'}</b></td><td class="r num"><b>−${brl(T.vtDesc||0)}</b></td><td class="r num"><b>${brl(T.liq||0)}</b></td></tr>`;
+  holerite();
+  // encargos
+  $('en-tab').innerHTML=funcs.map(f=>{const c=calcF(f);return `<tr><td>${esc(f.n)}</td><td class="r num">${brl(c.base)}</td><td class="r num">${brl(c.fgts)}</td><td class="r num">${brl(c.fer)}</td><td class="r num">${brl(c.dec)}</td><td class="r num">${brl(c.fgtsP)}</td><td class="r num">${brl(c.vtEmp)}</td><td class="r num"><b>${brl(c.total)}</b></td><td class="r num">${(c.total/f.sal).toLocaleString('pt-BR',{maximumFractionDigits:2})}×</td></tr>`}).join('');
+  $('en-tot').innerHTML=`<tr><td><b>Total</b></td><td class="r num"><b>${brl(T.base||0)}</b></td><td class="r num">${brl(T.fgts||0)}</td><td class="r num">${brl(T.fer||0)}</td><td class="r num">${brl(T.dec||0)}</td><td class="r num">${brl(T.fgtsP||0)}</td><td class="r num">${brl(T.vtEmp||0)}</td><td class="r num"><b>${brl(T.total||0)}</b></td><td></td></tr>`;
+  const bys={};funcs.forEach(f=>bys[f.setor]=(bys[f.setor]||0)+calcF(f).total);const mx=Math.max(1,...Object.values(bys));
+  $('en-set').innerHTML=Object.entries(bys).map(([s,v])=>`<div style="display:flex;flex-direction:column;gap:4px"><div class="row between"><span>${s}</span><span class="num note">${brl0(v)} · ${pct(v/(T.total||1))}</span></div><div class="stack" style="height:10px"><span style="width:${v/mx*100}%;background:${s==='Produção'?'var(--teal)':s==='Atendimento'?'#6B8CC7':'#9A7BC4'}"></span></div></div>`).join('');
+  const prod=funcs.filter(f=>f.setor==='Produção'),hrs=prod.reduce((s,f)=>s+f.jor,0),cp=prod.reduce((s,f)=>s+calcF(f).total,0),hora=hrs?cp/hrs:0;
+  $('en-hora').textContent=hrs?brl(hora):'—';$('en-hora').dataset.v=hora.toFixed(2);
+  $('en-hora-n').textContent=`${brl0(cp)} de custo total da equipe de produção ÷ ${hrs} horas contratadas no mês.`;
+  const cur=produtos.length?produtos[0].hora:MO_HORA;
+  $('en-hora-a').innerHTML=`<span class="i" style="background:${Math.abs(cur-hora)>0.5?'var(--warn)':'var(--teal)'}"></span><div><b>As fichas técnicas usam ${brl(cur)} por hora</b><p class="note">${Math.abs(cur-hora)>0.5?'O valor está desatualizado. Aplicar o custo real deixa o custo dos produtos mais preciso.':'Os produtos já usam o custo real da equipe.'}</p></div>`;
+  // agenda
+  $('ag-fer').innerHTML=funcs.map(f=>{const fe=ferias(f);return `<tr><td>${esc(f.n)}</td><td class="num">${dd(fe.ini)} a ${dd(addDays(fe.fimAq,-1))}</td><td class="num">${fe.fimAq>'2026-10-20'?'—':dd(fe.lim)}</td><td><span class="pill ${fe.st[0]}">${fe.st[1]}</span></td></tr>`}).join('');
+  $('ag-obr').innerHTML=[['5º dia útil','Pagamento dos salários (líquido)',T.liq],['15/11','eSocial: eventos da folha de outubro',0],['20/11','FGTS Digital (8% sobre a remuneração)',T.fgts],['20/11','INSS descontado dos empregados e IRRF (DCTFWeb)',(T.ins||0)+(T.ir||0)],['30/11','1ª parcela do 13º salário',funcs.reduce((s,f)=>{const [y,m,d]=f.adm.split('-').map(Number);const av=y<2026?12:Math.max(0,12-m+(d<=15?1:0));return s+f.sal*av/12/2},0)]].map(([d,o,v])=>`<tr><td class="num">${d}</td><td>${o}</td><td class="r num">${v?brl(v):'—'}</td></tr>`).join('');
+}
+function holerite(){const f=funcs.find(x=>x.id===holId)||funcs[0];if(!f){$('fo-hol').innerHTML='<p class="note">Cadastre um funcionário para ver o holerite.</p>';return}holId=f.id;const c=calcF(f);
+  const pv=[['Salário base',`${f.jor} h`,f.sal],['Horas extras 50%',f.he?f.he+' h':'',c.he],['Adicional noturno 20%',f.not?f.not+' h':'',c.an],['DSR sobre variáveis','',c.dsr]].filter(x=>x[2]>0);
+  const ds=[['Faltas',f.fal?f.fal+' dia'+(f.fal>1?'s':''):'',c.fal],['INSS',pct(c.base?c.ins/c.base:0)+' efetivo',c.ins],['IRRF',c.ir.dev?'':c.ir.imp>0?'zerado pela redução (Lei 15.270/2025)':'base abaixo da faixa de isenção',c.ir.dev],['Vale-transporte','6% do salário',c.vtDesc]].filter(x=>x[2]>0||x[0]==='IRRF');
+  $('fo-hol').innerHTML=`<div class="row between"><div><span class="label">Holerite · outubro de 2026</span><h3 style="font-size:20px;margin-top:4px">${esc(f.n)}</h3><p class="note">${esc(f.cargo)} · ${f.setor} · admissão em ${dd(f.adm)}</p></div><div style="text-align:right"><span class="label">Líquido a receber</span><p class="big num" style="font-size:30px">${brl(c.liq)}</p></div></div>
+  <div class="grid g2"><div class="tw"><table><thead><tr><th>Proventos</th><th>Ref.</th><th class="r">Valor</th></tr></thead><tbody>${pv.map(x=>`<tr><td>${x[0]}</td><td class="note">${x[1]}</td><td class="r num">${brl(x[2])}</td></tr>`).join('')}<tr><td><b>Total</b></td><td></td><td class="r num"><b>${brl(c.prov)}</b></td></tr></tbody></table></div>
+  <div class="tw"><table><thead><tr><th>Descontos</th><th>Ref.</th><th class="r">Valor</th></tr></thead><tbody>${ds.map(x=>`<tr><td>${x[0]}</td><td class="note">${x[1]}</td><td class="r num">${x[2]?brl(x[2]):'Isento'}</td></tr>`).join('')}<tr><td><b>Total</b></td><td></td><td class="r num"><b>${brl(c.fal+c.ins+c.ir.dev+c.vtDesc)}</b></td></tr></tbody></table></div></div>
+  <div class="row note" style="gap:20px"><span>Base do INSS: <b class="num">${brl(c.base)}</b></span><span>Base do FGTS: <b class="num">${brl(c.base)}</b></span><span>FGTS do mês: <b class="num">${brl(c.fgts)}</b></span><span>Base do IRRF: <b class="num">${brl(c.ir.base)}</b> (${c.ir.simpl?'desconto simplificado':'deduções legais'})</span></div>`}
+// editor de funcionário
+const FK=['n','cargo','setor','adm','sal','jor','dep','vt','he','not','fal'],FNUM=['sal','jor','dep','vt','he','not','fal'];
+let fDraft=null;
+function openF(id){fEdit=id;fDelArm=false;const f=id?funcs.find(x=>x.id===id):{id:'f'+Date.now(),n:'',cargo:'',setor:'Produção',adm:'2026-10-20',sal:SAL_MIN,jor:220,dep:0,vt:1,he:0,not:0,fal:0};
+  fDraft={...f};FK.forEach(k=>$('fu-'+k).value=fDraft[k]);$('fe-title').textContent=id?'Editar '+f.n:'Novo funcionário';$('fe-del').hidden=!id;$('fe-del').textContent='Excluir';$('fe-del').style.color='';
+  $('fe-card').hidden=false;fPrev();$('fe-card').scrollIntoView({behavior:'smooth',block:'start'});if(!id)$('fu-n').focus()}
+FK.forEach(k=>$('fu-'+k).addEventListener('input',e=>{fDraft[k]=FNUM.includes(k)?+e.target.value||0:e.target.value;fPrev()}));
+function fVal(){const e=[];if(!fDraft.n.trim())e.push('Informe o nome.');if(!fDraft.cargo.trim())e.push('Informe o cargo.');if(!fDraft.adm)e.push('Informe a data de admissão.');
+  const minJ=SAL_MIN*fDraft.jor/220;if(fDraft.sal<minJ-0.01)e.push(`O salário não pode ficar abaixo do mínimo de ${brl(minJ)} para essa jornada.`);if(fDraft.he>44)e.push('Horas extras acima de 2 por dia útil (limite da CLT).');return e}
+function fPrev(){const c=calcF(fDraft),e=fVal();$('fu-prev').innerHTML=`Líquido: <b class="num">${brl(c.liq)}</b><br>Custo para a empresa: <b class="num">${brl(c.total)}</b>`;
+  $('fu-val').innerHTML=e.length?`<div class="alert"><span class="i" style="background:var(--bad)"></span><div><b>Falta para salvar</b><ul class="note" style="margin:4px 0 0;padding-left:18px">${e.map(x=>`<li>${x}</li>`).join('')}</ul></div></div>`:'';$('fe-save').disabled=!!e.length}
+$('fu-new').onclick=()=>openF(null);$('fe-cancel').onclick=()=>{$('fe-card').hidden=true};
+$('fe-save').onclick=()=>{if(fVal().length)return;fDraft.n=fDraft.n.trim();const i=funcs.findIndex(f=>f.id===fEdit);if(i>=0)funcs[i]=fDraft;else funcs.push(fDraft);
+  $('fe-card').hidden=true;toast((i>=0?'Alterações salvas: ':'Funcionário cadastrado: ')+fDraft.n+'.');syncFolha();funcionarios()};
+$('fe-del').onclick=()=>{if(!fDelArm){fDelArm=true;$('fe-del').textContent='Confirmar exclusão';$('fe-del').style.color='var(--bad)';return}
+  funcs=funcs.filter(f=>f.id!==fEdit);$('fe-card').hidden=true;toast('Funcionário removido da folha.');syncFolha();funcionarios()};
+$('en-apply').onclick=()=>{const h=+$('en-hora').dataset.v;if(!h)return;MO_HORA=h;produtos.forEach(p=>p.hora=h);refreshAll();toast('Custo da hora atualizado para '+brl(h)+' em '+produtos.length+' produtos.')};
+// integra a folha ao painel e aos cenários
+function syncFolha(){refreshAll()}
+
+/* ---------- Vendas, custeio e DRE: o motor que liga os módulos ---------- */
+const REV_CAT='Mercadorias para revenda';
+insumos.push(
+ {id:'r1',n:'Refrigerante lata 350 ml',cat:REV_CAT,u:'un',c:2.60,preco:5.00,vend:600,s:260,min:200,val:'2027-04-30',forn:'Distribuidora de Bebidas RR'},
+ {id:'r2',n:'Refrigerante 2 L',cat:REV_CAT,u:'un',c:7.40,preco:11.99,vend:200,s:90,min:60,val:'2027-03-15',forn:'Distribuidora de Bebidas RR'},
+ {id:'r3',n:'Leite UHT 1 L',cat:REV_CAT,u:'un',c:4.90,preco:7.49,vend:300,s:180,min:120,val:'2027-01-20',forn:'Laticínios Roraima'},
+ {id:'r4',n:'Presunto fatiado',cat:REV_CAT,u:'kg',c:32.00,preco:49.90,vend:40,s:12,min:8,val:'2026-11-08',forn:'Frios Norte'},
+ {id:'r5',n:'Mussarela fatiada',cat:REV_CAT,u:'kg',c:38.00,preco:59.90,vend:45,s:9,min:10,val:'2026-11-12',forn:'Frios Norte'},
+ {id:'r6',n:'Café em pó 500 g',cat:REV_CAT,u:'un',c:15.80,preco:24.90,vend:80,s:30,min:25,val:'2027-05-10',forn:'Atacadão RR'},
+ {id:'r7',n:'Água mineral 500 ml',cat:REV_CAT,u:'un',c:1.10,preco:3.00,vend:400,s:150,min:100,val:'2027-08-01',forn:'Distribuidora de Bebidas RR'});
+CATS_INS.push(REV_CAT);
+Object.assign(produtos.find(p=>p.id==='p1'),{vend:30000});
+Object.assign(produtos.find(p=>p.id==='p2'),{vend:240});
+Object.assign(produtos.find(p=>p.id==='p3'),{vend:200});
+Object.assign(produtos.find(p=>p.id==='p4'),{vend:4500});
+Object.assign(DEV_MED['C360-T01-8F3A'].m,{p1:8.2,p2:6.1,p3:5.3,p4:4.2});
+
+const PAG=[['dinheiro','Dinheiro',.12,0,'Na hora'],['pix','Pix',.38,0,'Na hora'],['debito','Cartão de débito',.30,.012,'D+1'],['credito','Cartão de crédito',.20,.031,'D+30']];
+let pagAdd={dinheiro:0,pix:0,debito:0,credito:0},cupBase=4960,cupAdd=0;
+let cupons=[['000418','19:42','6 Pão francês, 1 Leite UHT 1 L','pix',12.29],['000417','19:39','1 Bolo de cenoura com cobertura','credito',32],['000416','19:31','0,5 kg Pão de queijo, 2 Refrigerante lata 350 ml','debito',32],['000415','19:24','10 Pão francês, 0,2 kg Presunto fatiado','dinheiro',17.98],['000414','19:20','4 Pão doce, 1 Café em pó 500 g','pix',30.90]];
+const ALUGUEL=4200,PRO_LABORE=3000,ENER_NAO=380,MANUT=300;
+const DESP_ADM=[['Honorários do contador',900],['Internet e telefone',220],['Assinatura Custo360 (plano Inteligente)',249],['Material de limpeza',380],['Divulgação e redes sociais',300]];
+let ativos=[
+ {n:'Forno elétrico de lastro',s:'Produção',v:18000,d:'2022-03-10',vu:10},
+ {n:'Câmara fria',s:'Produção',v:14000,d:'2021-06-01',vu:10},
+ {n:'Batedeira industrial',s:'Produção',v:6500,d:'2023-01-15',vu:10},
+ {n:'Freezer horizontal',s:'Produção',v:4200,d:'2024-02-20',vu:10},
+ {n:'Equipamentos Custo360 (4 unidades)',s:'Produção',v:796,d:'2026-08-01',vu:5},
+ {n:'Balcão refrigerado',s:'Loja',v:9000,d:'2022-03-10',vu:10},
+ {n:'Computador e frente de caixa',s:'Administração',v:3500,d:'2025-05-02',vu:5}];
+let rateioBase='mod',areaProd=0.6,dreMode='abs',DR=null;
+function aliqEf(rbt){const i=faixas.findIndex(x=>rbt<=x[0]);const [,al,de]=faixas[i<0?5:i];return rbt>0?(rbt*al-de)/rbt:0}
+function depInfo(a){const [y,m]=a.d.split('-').map(Number);const meses=Math.max(0,(2026-y)*12+(10-m)+1);const mes=a.v/(a.vu*12);const n=Math.min(meses,a.vu*12);
+  return {mes:meses>a.vu*12?0:mes,acum:mes*n,contabil:a.v-mes*n,meses}}
+function rateio(list,cif){const bases=list.map(p=>{const l=p.vend/p.rend;return rateioBase==='mod'?l*p.min/60:rateioBase==='kwh'?l*p.kwh:rateioBase==='rec'?p.preco*p.vend:l});
+  const tot=bases.reduce((a,b)=>a+b,0)||1;const map={};list.forEach((p,i)=>map[p.id]={base:bases[i],share:bases[i]/tot,cif:cif*bases[i]/tot,unit:p.vend?cif*bases[i]/tot/p.vend:0});return map}
+function dre(){
+  const prod=produtos.map(p=>{const c=custoProd(p),l=p.vend/p.rend;return {p,c,lotes:l,rec:p.preco*p.vend,mp:(c.ing+c.emb)*p.vend,en:c.en*p.vend,mod:c.mo*p.vend,kwh:l*p.kwh}});
+  const rv=insumos.filter(i=>i.preco>0).map(i=>({i,rec:i.preco*i.vend,cmv:i.c*i.vend}));
+  const sum=(a,k)=>a.reduce((s,x)=>s+x[k],0);
+  const Rprod=sum(prod,'rec'),Rrev=sum(rv,'rec'),R=Rprod+Rrev,aliq=aliqEf(R*12),simples=R*aliq;
+  const addT=Object.values(pagAdd).reduce((a,b)=>a+b,0),pag={};PAG.forEach(([k,,sh])=>pag[k]=Math.max(0,R-addT)*sh+pagAdd[k]);
+  const taxas=PAG.reduce((s,[k,,,tx])=>s+pag[k]*tx,0);
+  const fp=funcs.filter(f=>f.setor==='Produção').reduce((s,f)=>s+calcF(f).total,0),fo=funcs.filter(f=>f.setor!=='Produção').reduce((s,f)=>s+calcF(f).total,0);
+  const MP=sum(prod,'mp'),enerDir=sum(prod,'en'),MOD=sum(prod,'mod'),MOI=Math.max(0,fp-MOD),kwhDir=sum(prod,'kwh');
+  const enerInd=devices.slice(1).reduce((s,d)=>s+d.kwh,0)*TAR;
+  const alP=ALUGUEL*areaProd,alL=ALUGUEL-alP;
+  const deps=ativos.map(depInfo),depProd=ativos.reduce((s,a,i)=>s+(a.s==='Produção'?deps[i].mes:0),0),depOut=ativos.reduce((s,a,i)=>s+(a.s!=='Produção'?deps[i].mes:0),0);
+  const cifItems=[['Mão de obra indireta e ociosa da produção',MOI],['Aluguel da área de produção',alP],['Energia da câmara fria, freezer e batedeira',enerInd],['Depreciação dos equipamentos de produção',depProd],['Manutenção dos equipamentos',MANUT]];
+  const CIF=cifItems.reduce((s,x)=>s+x[1],0),rat=rateio(produtos,CIF);
+  const CPV=MP+enerDir+MOD+CIF,CMV=sum(rv,'cmv');
+  const adm=DESP_ADM.reduce((s,x)=>s+x[1],0);
+  const perdas=-movs.filter(m=>(m[1]==='Perda'||m[1]==='Ajuste')&&m[0].startsWith('2026-10')).reduce((s,m)=>s+m[3],0);
+  const despOp=[['Salários e encargos do atendimento',fo],['Pró-labore dos sócios',PRO_LABORE],['Aluguel da loja',alL],['Energia da loja (iluminação, sem medição)',ENER_NAO],['Taxas de cartão',taxas],['Depreciação da loja e administração',depOut],['Despesas administrativas',adm],['Perdas e ajustes de estoque',perdas]];
+  const DO=despOp.reduce((s,x)=>s+x[1],0);
+  const RL=R-simples,LB=RL-CPV-CMV,lucro=LB-DO;
+  const varc=simples+MP+enerDir+CMV+taxas,MC=R-varc,fixos=R-varc-lucro,pe=MC>0?fixos/(MC/R):Infinity;
+  return {prod,rv,Rprod,Rrev,R,aliq,simples,pag,taxas,taxaPct:R?taxas/R:0,fp,fo,MP,enerDir,MOD,MOI,kwhDir,enerInd,alP,alL,depProd,depOut,cifItems,CIF,rat,CPV,CMV,adm,perdas,despOp,DO,RL,LB,lucro,varc,MC,fixos,pe,
+    enerTot:enerDir+enerInd+ENER_NAO,folhaTot:fp+fo,depTot:depProd+depOut}}
+function refreshAll(){DR=dre();ALIQ=DR.aliq;devices[0].kwh=Math.round(DR.kwhDir);DR=dre();
+  painel();estoque();prList();vendas();custeio();dreRender();caixa();energia();funcionarios();if($('sc-presets').querySelector('[aria-pressed="true"]')){cenario();renderSaved()}avisos()}
+
+/* ---------- Vendas ---------- */
+const itensVenda=()=>[...produtos.map(p=>({k:'p:'+p.id,n:p.n,preco:p.preco,u:p.uv,t:'prod',ref:p})),...insumos.filter(i=>i.preco>0).map(i=>({k:'i:'+i.id,n:i.n,preco:i.preco,u:i.u,t:'rev',ref:i}))];
+let cart=[],pdvPag='pix';
+function pdvOpts(){const it=itensVenda();$('pdv-i').innerHTML=`<optgroup label="Produção própria">${it.filter(x=>x.t==='prod').map(x=>`<option value="${x.k}">${esc(x.n)} · ${brl(x.preco)}/${x.u}</option>`).join('')}</optgroup><optgroup label="Revenda de mercadorias">${it.filter(x=>x.t==='rev').map(x=>`<option value="${x.k}">${esc(x.n)} · ${brl(x.preco)}/${x.u}</option>`).join('')}</optgroup>`}
+$('pdv-pag').innerHTML=PAG.map(([k,n])=>`<button type="button" class="btn ghost" data-pg="${k}" style="padding:6px 12px;font-size:13px">${n}</button>`).join('');
+$('pdv-pag').querySelectorAll('[data-pg]').forEach(b=>b.onclick=()=>{pdvPag=b.dataset.pg;pdvRender()});
+$('pdv-add').onclick=()=>{const k=$('pdv-i').value,q=+$('pdv-q').value;if(!(q>0))return;const ex=cart.find(c=>c.k===k);if(ex)ex.q+=q;else cart.push({k,q});$('pdv-msg').innerHTML='';pdvRender()};
+function itemCusto(x){if(x.t==='rev')return x.ref.c;const r=DR.rat[x.ref.id];return custoProd(x.ref).tot+(r?r.unit:0)}
+function pdvRender(){$('pdv-pag').querySelectorAll('[data-pg]').forEach(b=>{const on=b.dataset.pg===pdvPag;b.style.background=on?'var(--fg)':'transparent';b.style.color=on?'var(--bg)':'var(--fg)'});
+  const it=itensVenda();const lines=cart.map(c=>({...c,x:it.find(i=>i.k===c.k)})).filter(l=>l.x);
+  $('pdv-cart').innerHTML=lines.length?lines.map((l,i)=>`<tr><td>${esc(l.x.n)}</td><td class="r num">${fmtQ(l.q,l.x.u==='unidade'||l.x.u==='bolo'?'un':l.x.u)}</td><td class="r num">${brl(l.x.preco)}</td><td class="r num">${brl(l.x.preco*l.q)}</td><td class="r"><button class="btn ghost" style="padding:4px 8px" data-cx="${i}" aria-label="Remover">✕</button></td></tr>`).join(''):'<tr><td colspan="5" class="note">Cupom vazio. Escolha um item e clique em Adicionar.</td></tr>';
+  $('pdv-cart').querySelectorAll('[data-cx]').forEach(b=>b.onclick=()=>{cart.splice(+b.dataset.cx,1);pdvRender()});
+  const tot=lines.reduce((s,l)=>s+l.x.preco*l.q,0),pg=PAG.find(p=>p[0]===pdvPag),tx=tot*pg[3],cus=lines.reduce((s,l)=>s+itemCusto(l.x)*l.q,0),simp=tot*ALIQ;
+  $('pdv-sum').innerHTML=`<tr><td>Total do cupom</td><td class="r num"><b>${brl(tot)}</b></td></tr><tr><td>Taxa da operadora</td><td class="r num">${tx?'−'+brl(tx):'—'}</td></tr><tr><td>Recebimento</td><td class="r">${pg[4]}</td></tr><tr><td>Custo dos itens</td><td class="r num">−${brl(cus)}</td></tr><tr><td>Simples sobre a venda</td><td class="r num">−${brl(simp)}</td></tr><tr><td><b>Resultado da venda</b></td><td class="r num" style="color:${tot-tx-cus-simp<0?'var(--bad)':'var(--good)'}"><b>${brl(tot-tx-cus-simp)}</b></td></tr>`;
+  $('pdv-fim').disabled=!lines.length}
+$('pdv-fim').onclick=()=>{const it=itensVenda();const lines=cart.map(c=>({...c,x:it.find(i=>i.k===c.k)})).filter(l=>l.x);if(!lines.length)return;
+  const falta=lines.filter(l=>l.x.t==='rev'&&l.x.ref.s<l.q);
+  if(falta.length){$('pdv-msg').innerHTML=`<div class="alert"><span class="i" style="background:var(--bad)"></span><div><b>Sem estoque suficiente</b><p class="note">${falta.map(l=>`${esc(l.x.n)}: há ${fmtQ(l.x.ref.s,l.x.ref.u)}`).join('; ')}.</p></div></div>`;return}
+  const tot=lines.reduce((s,l)=>s+l.x.preco*l.q,0);
+  lines.forEach(l=>{l.x.ref.vend+=l.q;if(l.x.t==='rev')l.x.ref.s=+(l.x.ref.s-l.q).toFixed(3)});
+  pagAdd[pdvPag]+=tot;cupAdd++;const n=String(418+cupAdd).padStart(6,'0');
+  cupons.unshift([n,'20:0'+Math.min(9,cupAdd),lines.map(l=>`${(+l.q).toLocaleString('pt-BR')} ${l.x.n}`).join(', '),pdvPag,tot]);
+  const baixa=lines.filter(l=>l.x.t==='rev').map(l=>l.x.n);
+  cart=[];refreshAll();
+  $('pdv-msg').innerHTML=`<div class="alert"><span class="i" style="background:var(--teal)"></span><div><b>Cupom ${n} registrado: ${brl(tot)}</b><p class="note">A receita entrou na DRE${baixa.length?', o estoque de '+baixa.join(', ')+' foi baixado':''} e o recebimento foi lançado no fluxo de caixa.</p></div></div>`}
+function vendas(){const D=DR;const cup=cupBase+cupAdd;
+  $('vk-r').textContent=brl0(D.R);$('vk-mix').textContent=`${pct(D.Rprod/D.R)} produção própria · ${pct(D.Rrev/D.R)} revenda`;
+  $('vk-t').textContent=brl(D.R/cup);$('vk-c').textContent=cup.toLocaleString('pt-BR');$('vk-tx').textContent=brl0(D.taxas);
+  $('vp-tab').innerHTML=PAG.map(([k,n,,tx,rc])=>`<tr><td>${n}</td><td class="r num">${brl0(D.pag[k])} <small class="note">${pct(D.pag[k]/D.R)}</small></td><td class="r num">${tx?pct(tx):'—'}</td><td>${rc}</td></tr>`).join('');
+  const cols={dinheiro:'#C98A5A',pix:'var(--teal)',debito:'#6B8CC7',credito:'var(--accent)'};
+  $('vp-stack').innerHTML=PAG.map(([k])=>`<span style="width:${D.pag[k]/D.R*100}%;background:${cols[k]}"></span>`).join('');
+  const f=$('abc-f').value;
+  const all=[...D.prod.map(x=>({n:x.p.n,t:'prod',q:x.p.vend,u:x.p.uv,preco:x.p.preco,rec:x.rec,cu:custoProd(x.p).tot+D.rat[x.p.id].unit})),...D.rv.map(x=>({n:x.i.n,t:'rev',q:x.i.vend,u:x.i.u,preco:x.i.preco,rec:x.rec,cu:x.i.c}))].sort((a,b)=>b.rec-a.rec);
+  let ac=0;all.forEach(x=>{const ini=ac/D.R;ac+=x.rec;x.p=x.rec/D.R;x.ac=ac/D.R;x.cl=ini<0.8?'A':ini<0.95?'B':'C'});
+  $('abc-tab').innerHTML=all.filter(x=>!f||x.t===f).map(x=>{const mb=(x.preco-x.cu)/x.preco;return `<tr><td><span class="pill ${x.cl==='A'?'ok':x.cl==='B'?'warn':'demo'}">${x.cl}</span></td><td>${esc(x.n)}<br><small class="note">${x.t==='prod'?'Produção própria':'Revenda'}</small></td><td class="r num">${(+x.q).toLocaleString('pt-BR',{maximumFractionDigits:1})} ${x.u==='unidade'?'un':x.u==='bolo'?'bolos':x.u}</td><td class="r num">${brl(x.preco)}</td><td class="r num">${brl0(x.rec)}</td><td class="r num">${pct(x.p)}</td><td class="r num">${pct(x.ac)}</td><td class="r num">${brl(x.cu)}</td><td class="r">${mPill(mb)}</td></tr>`}).join('');
+  const pn={dinheiro:'Dinheiro',pix:'Pix',debito:'Débito',credito:'Crédito'};
+  $('cup-tab').innerHTML=cupons.slice(0,8).map(c=>`<tr><td class="num" style="font-family:var(--mono)">${c[0]}</td><td class="num">${c[1]}</td><td>${esc(c[2])}</td><td>${pn[c[3]]}</td><td class="r num">${brl(c[4])}</td></tr>`).join('');
+  pdvOpts();pdvRender()}
+$('abc-f').onchange=vendas;
+
+/* ---------- Custeio ---------- */
+function custeio(){const D=DR;
+  $('ck-cif').textContent=brl0(D.CIF);$('ck-cpv').textContent=brl0(D.CPV);$('ck-cpvp').textContent=pct(D.CPV/D.Rprod)+' da receita dos produtos próprios';
+  $('ck-dep').textContent=brl(D.depTot);$('ck-pe').textContent=isFinite(D.pe)?brl0(D.pe):'—';
+  $('c-areav').textContent=pct(areaProd)+' · '+brl0(D.alP);
+  $('cif-tab').innerHTML=D.cifItems.map(([n,v])=>`<tr><td>${n}</td><td class="r num">${brl(v)}</td></tr>`).join('')+`<tr><td><b>Total de custos indiretos</b></td><td class="r num"><b>${brl(D.CIF)}</b></td></tr><tr><td class="note">Mão de obra direta (já está nas fichas técnicas)</td><td class="r num note">${brl(D.MOD)}</td></tr>`;
+  const bu={mod:'h',kwh:'kWh',rec:'',lotes:'lotes'}[rateioBase];
+  $('rat-tab').innerHTML=produtos.map(p=>{const r=D.rat[p.id];return `<tr><td>${esc(p.n)}</td><td class="r num">${rateioBase==='rec'?brl0(r.base):r.base.toLocaleString('pt-BR',{maximumFractionDigits:1})+' '+bu}</td><td class="r num">${pct(r.share)}</td><td class="r num">${brl0(r.cif)}</td></tr>`}).join('');
+  const rows=produtos.map(p=>{const c=custoProd(p),r=D.rat[p.id],cv=c.ing+c.emb+c.en,abs=cv+c.mo+r.unit,ded=p.preco*(ALIQ+D.taxaPct);return {p,cv,mo:c.mo,cif:r.unit,abs,lu:p.preco-abs-ded,mc:p.preco-cv-ded}});
+  $('abs-tab').innerHTML=rows.map(x=>`<tr><td><b>${esc(x.p.n)}</b><br><small class="note">por ${x.p.uv}</small></td><td class="r num">${brl(x.p.preco)}</td><td class="r num">${brl(x.cv)}</td><td class="r num">${brl(x.mo)}</td><td class="r num">${brl(x.cif)}</td><td class="r num"><b>${brl(x.abs)}</b></td><td class="r num" style="color:${x.lu<0?'var(--bad)':'var(--good)'}">${brl(x.lu)}</td><td class="r num">${brl(x.mc)} <small class="note">${pct(x.mc/x.p.preco)}</small></td><td class="r num">${brl0(x.mc*x.p.vend)}</td></tr>`).join('');
+  const neg=rows.filter(x=>x.lu<0),best=rows.slice().sort((a,b)=>b.mc*b.p.vend-a.mc*a.p.vend)[0];
+  $('abs-ins').innerHTML=`<span class="i" style="background:${neg.length?'var(--warn)':'var(--teal)'}"></span><div><b>${neg.length?neg.map(x=>x.p.n).join(' e ')+' parece'+(neg.length>1?'m':'')+' dar prejuízo pela absorção':'Todos os produtos dão lucro pela absorção com este critério'}</b><p class="note">${neg.length?'Mas a margem de contribuição é positiva: '+(neg.length>1?'eles ajudam':'ele ajuda')+' a pagar os custos fixos. Tirar do cardápio pioraria o resultado, porque os custos fixos continuariam e seriam rateados entre os outros produtos. ':''}${best?best.p.n+' é o produto que mais contribui no mês ('+brl0(best.mc*best.p.vend)+').':''}</p></div>`;
+  $('atv-tab').innerHTML=ativos.map(a=>{const d=depInfo(a);return `<tr><td>${esc(a.n)}</td><td>${a.s}</td><td class="num">${dd(a.d)}</td><td class="r num">${brl0(a.v)}</td><td class="r num">${a.vu} anos</td><td class="r num">${d.mes?brl(d.mes):'Totalmente depreciado'}</td><td class="r num">${brl0(d.acum)}</td><td class="r num">${brl0(d.contabil)}</td></tr>`}).join('');
+  const t=ativos.reduce((s,a)=>{const d=depInfo(a);s.v+=a.v;s.m+=d.mes;s.a+=d.acum;s.c+=d.contabil;return s},{v:0,m:0,a:0,c:0});
+  $('atv-tot').innerHTML=`<tr><td colspan="3"><b>Total</b></td><td class="r num"><b>${brl0(t.v)}</b></td><td></td><td class="r num"><b>${brl(t.m)}</b></td><td class="r num">${brl0(t.a)}</td><td class="r num"><b>${brl0(t.c)}</b></td></tr>`}
+$('c-base').onchange=e=>{rateioBase=e.target.value;refreshAll()};
+$('c-area').oninput=e=>{areaProd=+e.target.value/100;refreshAll()};
+$('atv-form').addEventListener('submit',e=>{e.preventDefault();const n=$('at-n').value.trim(),v=+$('at-v').value;if(!n||!(v>0))return toast('Informe o nome e o valor do bem.');
+  ativos.push({n,s:$('at-s').value,v,d:$('at-d').value||'2026-10-20',vu:+$('at-vu').value});refreshAll();toast(n+' adicionado ao imobilizado. A depreciação já entrou nos custos e na DRE.')});
+
+/* ---------- DRE ---------- */
+$('dre-mode').innerHTML=[['abs','Por absorção (contábil)'],['var','Custeio variável (gerencial)']].map(([k,n])=>`<button type="button" class="btn ghost" data-dm="${k}" style="padding:6px 12px;font-size:13px">${n}</button>`).join('');
+$('dre-mode').querySelectorAll('[data-dm]').forEach(b=>b.onclick=()=>{dreMode=b.dataset.dm;dreRender()});
+function dreRender(){const D=DR,R=D.R;
+  $('dre-mode').querySelectorAll('[data-dm]').forEach(b=>{const on=b.dataset.dm===dreMode;b.style.background=on?'var(--fg)':'transparent';b.style.color=on?'var(--bg)':'var(--fg)'});
+  const L=(n,v,k)=>({n,v,k}); // k: 't' total, 'h' grupo, 's' subconta
+  let rows;
+  if(dreMode==='abs'){$('dre-title').textContent='Demonstração do resultado · custeio por absorção';
+    rows=[L('Receita operacional bruta',R,'t'),L('Venda de produtos de fabricação própria',D.Rprod,'s'),L('Revenda de mercadorias',D.Rrev,'s'),
+      L('(−) Deduções da receita',-D.simples,'h'),L(`Simples Nacional · alíquota efetiva de ${pct(D.aliq)}`,-D.simples,'s'),
+      L('(=) Receita operacional líquida',D.RL,'t'),
+      L('(−) Custo dos produtos vendidos (CPV)',-D.CPV,'h'),L('Matéria-prima e embalagens',-D.MP,'s'),L('Mão de obra direta',-D.MOD,'s'),L('Energia dos fornos (medida pelas tomadas)',-D.enerDir,'s'),L('Custos indiretos de fabricação',-D.CIF,'s'),
+      L('(−) Custo das mercadorias vendidas (CMV)',-D.CMV,'h'),
+      L('(=) Lucro bruto',D.LB,'t'),
+      L('(−) Despesas operacionais',-D.DO,'h'),...D.despOp.map(([n,v])=>L(n,-v,'s')),
+      L('(=) Lucro líquido do mês',D.lucro,'t')]}
+  else{$('dre-title').textContent='Demonstração do resultado · custeio variável';
+    rows=[L('Receita operacional bruta',R,'t'),
+      L('(−) Custos e despesas variáveis',-D.varc,'h'),L('Simples Nacional',-D.simples,'s'),L('Matéria-prima e embalagens',-D.MP,'s'),L('Energia dos fornos',-D.enerDir,'s'),L('Mercadorias revendidas (CMV)',-D.CMV,'s'),L('Taxas de cartão',-D.taxas,'s'),
+      L('(=) Margem de contribuição',D.MC,'t'),
+      L('(−) Custos e despesas fixos',-D.fixos,'h'),L('Folha da produção (com encargos e provisões)',-D.fp,'s'),L('Folha do atendimento (com encargos e provisões)',-D.fo,'s'),L('Pró-labore dos sócios',-PRO_LABORE,'s'),L('Aluguel',-ALUGUEL,'s'),L('Energia de refrigeração e da loja',-(D.enerInd+ENER_NAO),'s'),L('Depreciação',-D.depTot,'s'),L('Manutenção',-MANUT,'s'),L('Despesas administrativas',-D.adm,'s'),L('Perdas e ajustes de estoque',-D.perdas,'s'),
+      L('(=) Lucro líquido do mês',D.lucro,'t')]}
+  $('dre-tab').innerHTML=rows.map(r=>`<tr${r.k==='t'?' style="background:var(--surface-2)"':''}><td style="${r.k==='s'?'padding-left:22px;color:var(--muted)':'font-weight:700'}">${r.n}</td><td class="r num" style="${r.k!=='s'?'font-weight:700;':''}${r.v<0&&r.k==='t'?'color:var(--bad)':''}">${brl(r.v)}</td><td class="r num note">${pct(Math.abs(r.v)/R)}</td></tr>`).join('');
+  const ms=(R-D.pe)/R;
+  const ind=[['Margem bruta',D.LB/R],['Margem de contribuição',D.MC/R],['Margem líquida',D.lucro/R],['CPV + CMV sobre a receita',(D.CPV+D.CMV)/R],['Folha e pró-labore sobre a receita',(D.folhaTot+PRO_LABORE)/R]];
+  $('dre-ind').innerHTML=ind.map(([n,v])=>`<tr><td>${n}</td><td class="r num"><b>${pct(v)}</b></td></tr>`).join('')+`<tr><td>Ponto de equilíbrio contábil</td><td class="r num"><b>${isFinite(D.pe)?brl0(D.pe):'—'}</b></td></tr><tr><td>Margem de segurança</td><td class="r num"><b>${isFinite(D.pe)?pct(ms):'—'}</b></td></tr>`;
+  const T=folhaTot(),naoCaixa=D.depTot+(T.fer||0)+(T.dec||0)+(T.fgtsP||0);
+  $('dre-ins').innerHTML=`<h3>Leitura do resultado</h3>
+   <div class="alert"><span class="i" style="background:${D.lucro<0?'var(--bad)':ms<0.15?'var(--warn)':'var(--teal)'}"></span><div><b>${D.lucro<0?'A padaria fechou outubro no prejuízo':'Lucro de '+brl0(D.lucro)+' no mês ('+pct(D.lucro/R)+' da receita)'}</b><p class="note">${isFinite(D.pe)?'As vendas podem cair até '+pct(Math.max(0,ms))+' antes de o resultado ficar negativo.':''}</p></div></div>
+   <div class="alert"><span class="i" style="background:var(--accent)"></span><div><b>Lucro não é caixa</b><p class="note">${brl0(naoCaixa)} das despesas do mês são depreciação e provisões de férias e 13º. Elas reduzem o lucro agora, mas só saem do caixa mais tarde.</p></div></div>
+   <div class="alert"><span class="i" style="background:#6B8CC7"></span><div><b>Tributos sobre o lucro</b><p class="note">No Simples Nacional, IRPJ e CSLL já estão dentro do DAS, então não há linha separada de imposto de renda.</p></div></div>`}
+
+/* ---------- Fluxo de caixa de novembro, montado a partir da DRE ---------- */
+function buildMov(){const D=DR,T=folhaTot();const av=D.pag.dinheiro+D.pag.pix+D.pag.debito*(1-.012),cr=D.pag.credito*(1-.031),comp=D.MP+D.CMV;
+  const dec1=funcs.reduce((s,f)=>{const [y,m,d]=f.adm.split('-').map(Number);const a=y<2026?12:Math.max(0,12-m+(d<=15?1:0));return s+f.sal*a/12/2},0);
+  return [[3,'Vendas à vista, Pix e débito da semana',av/4,'Vendas'],[10,'Vendas à vista, Pix e débito da semana',av/4,'Vendas'],[17,'Vendas à vista, Pix e débito da semana',av/4,'Vendas'],[24,'Vendas à vista, Pix e débito da semana',av/4,'Vendas'],
+   [5,'Cartão de crédito de outubro (D+30)',cr/3,'Contas a receber'],[15,'Cartão de crédito de outubro (D+30)',cr/3,'Contas a receber'],[25,'Cartão de crédito de outubro (D+30)',cr/3,'Contas a receber'],
+   [4,'Moinho e distribuidora de grãos',-comp*.35,'Fornecedores'],[12,'Distribuidora de bebidas e frios',-comp*.30,'Fornecedores'],[22,'Laticínios e ovos',-comp*.25,'Fornecedores'],[28,'Embalagens e hortifrúti',-comp*.10,'Fornecedores'],
+   [6,'Salários líquidos (5º dia útil)',-(T.liq||0),'Folha'],[6,'Pró-labore líquido',-PRO_LABORE*0.89,'Folha'],[10,'Aluguel',-ALUGUEL,'Contas a pagar'],[18,'Conta de energia',-(D.enerTot),'Energia medida'],
+   [16,'Contador, internet, sistema e outras',-(D.adm+MANUT),'Contas a pagar'],[20,'DAS · Simples Nacional',-D.simples,'Tributos'],[20,'FGTS Digital',-(T.fgts||0),'Tributos'],[20,'INSS e IRRF retidos (DCTFWeb)',-((T.ins||0)+(T.ir||0)+PRO_LABORE*0.11),'Tributos'],
+   [30,'1ª parcela do 13º salário',-dec1,'Folha']].map(m=>[m[0],m[1],Math.round(m[2]),m[3]])}
+
+
+/* ---------- Avisos ---------- */
+let avFiltro='todos',prevLow=null;
+function lotesPossiveis(insId){return produtos.filter(p=>p.ficha.some(f=>f[0]===insId)).map(p=>{const l=Math.min(...p.ficha.map(([id,q])=>{const i=insById(id);return i&&q>0?i.s/q:Infinity}));return {p,l:Math.floor(l)}}).sort((a,b)=>b.p.vend-a.p.vend)}
+function gerarAvisos(){const av=[];
+  insumos.forEach(i=>{const cm=consumoMes(i.id),dias=cm>0?i.s/(cm/30):Infinity,rev=i.cat===REV_CAT;
+    let sev=null,t='';
+    if(i.s<=0){sev='bad';t=`${i.n} acabou`}
+    else if(i.s<i.min*0.5||dias<3){sev='bad';t=`${i.n} está acabando`}
+    else if(i.s<i.min){sev='warn';t=`${i.n} abaixo do mínimo`}
+    else if(dias<7){sev='warn';t=`${i.n} dura só mais ${Math.floor(dias)} dias`}
+    if(sev){const lp=rev?[]:lotesPossiveis(i.id),main=lp[0];
+      let d=`Restam ${fmtQ(i.s,i.u)}${isFinite(dias)?', o suficiente para cerca de '+Math.max(0,Math.floor(dias))+' dia'+(Math.floor(dias)===1?'':'s'):''}. Mínimo: ${fmtQ(i.min,i.u)}.`;
+      if(main)d+=` Com o que tem, dá para mais ${main.l} lote${main.l===1?'':'s'} de ${main.p.n}${lp.length>1?' (usado também em '+lp.slice(1).map(x=>x.p.n).join(', ')+')':''}.`;
+      if(rev)d+=' Item de revenda: sem ele, a venda é perdida no balcão.';
+      av.push({sev,cat:'estoque',t,d,acts:[['Registrar compra',()=>irCompra(i.id)],['Ver estoque',()=>{show('estoque');fecharAv()}]]})}
+    const dv=diasAte(i.val);
+    if(i.val&&i.s>0&&dv<=7)av.push({sev:dv<=2?'bad':'warn',cat:'estoque',t:`${i.n} ${dv<=0?'vence hoje':'vence em '+dv+' dia'+(dv===1?'':'s')}`,d:`${fmtQ(i.s,i.u)} em estoque (${brl(i.s*i.c)}). Use primeiro na produção ou registre a perda se não der tempo.`,acts:[['Registrar perda',()=>irPerda(i.id)]]})});
+  funcs.forEach(f=>{const fe=ferias(f);if(fe.st[0]==='bad')av.push({sev:'bad',cat:'pessoal',t:`Férias de ${f.n.split(' ')[0]} precisam ser concedidas`,d:`Prazo até ${dd(fe.lim)}. Depois disso, a CLT manda pagar em dobro.`,acts:[['Ver férias',()=>{show('funcionarios');fsMode='agenda';funcionarios();fecharAv()}]]})});
+  if(DR){let s=SALDO,mn=Infinity,md=0;const ms=buildMov().sort((a,b)=>a[0]-b[0]);for(let d=0;d<=30;d++){ms.filter(m=>m[0]===d).forEach(m=>s+=m[2]);if(s<mn){mn=s;md=d}}
+    if(mn<0)av.push({sev:'bad',cat:'financeiro',t:`Caixa fica negativo no dia ${md}/11`,d:`Faltam ${brl0(-mn)}. Antecipe recebíveis ou negocie o prazo de um fornecedor.`,acts:[['Ver fluxo de caixa',()=>{show('caixa');fecharAv()}]]});
+    else if(mn<2500)av.push({sev:'warn',cat:'financeiro',t:`Folga de caixa pequena no dia ${md}/11`,d:`O saldo previsto chega a ${brl0(mn)}. Um atraso no repasse do cartão já deixaria o caixa negativo.`,acts:[['Ver fluxo de caixa',()=>{show('caixa');fecharAv()}]]})}
+  produtos.forEach(p=>{const c=custoProd(p);if(c.marg<0.15)av.push({sev:c.lucro<0?'bad':'warn',cat:'financeiro',t:`Margem baixa: ${p.n}`,d:`Margem de ${pct(c.marg)} após tributos. Revise o preço ou a ficha técnica.`,acts:[['Abrir produto',()=>{show('produtos');openEditor(p.id);fecharAv()}]]})});
+  av.push({sev:'warn',cat:'equipamentos',t:'Câmara fria gastando acima do normal',d:'Consumo 18% maior que a média das últimas 4 semanas. Vale checar a vedação da porta.',acts:[['Ver energia',()=>{show('energia');fecharAv()}]]});
+  av.push({sev:'info',cat:'financeiro',t:'DAS, FGTS e INSS vencem dia 20/11',d:`Total previsto de ${brl0((DR?DR.simples:0)+(folhaTot().fgts||0)+(folhaTot().ins||0))}.`,acts:[['Ver tributos',()=>{show('tributos');fecharAv()}]]});
+  const ord={bad:0,warn:1,info:2};return av.sort((a,b)=>ord[a.sev]-ord[b.sev])}
+const AVF=[['todos','Todos'],['estoque','Estoque'],['financeiro','Financeiro'],['pessoal','Pessoal'],['equipamentos','Equipamentos']];
+let AVS=[];
+function avItem(a,i){return `<div class="av"><span class="i" style="background:var(--${a.sev==='bad'?'bad':a.sev==='warn'?'warn':'teal'})"></span><div style="min-width:0"><b>${esc(a.t)}</b><p class="note">${esc(a.d)}</p><div class="acts">${a.acts.map((x,j)=>`<button type="button" data-av="${i}:${j}">${x[0]}</button>`).join('')}</div></div></div>`}
+function bindAv(root){root.querySelectorAll('[data-av]').forEach(b=>b.onclick=e=>{e.stopPropagation();const [i,j]=b.dataset.av.split(':').map(Number);AVS[i].acts[j][1]()})}
+function avisos(){AVS=gerarAvisos();const n=AVS.filter(a=>a.sev!=='info').length,nb=AVS.filter(a=>a.sev==='bad').length;
+  $('bell-n').hidden=!n;$('bell-n').textContent=n;
+  $('av-sum').textContent=`${nb} urgente${nb===1?'':'s'} · ${n-nb} de atenção`;
+  $('av-f').innerHTML=AVF.map(([k,l])=>{const c=k==='todos'?AVS.length:AVS.filter(a=>a.cat===k).length;return `<button type="button" class="btn ghost" data-avf="${k}" style="padding:4px 10px;font-size:12px;${k===avFiltro?'background:var(--fg);color:var(--bg)':''}">${l} ${c}</button>`}).join('');
+  $('av-f').querySelectorAll('[data-avf]').forEach(b=>b.onclick=e=>{e.stopPropagation();avFiltro=b.dataset.avf;avisos()});
+  $('av-list').innerHTML=AVS.map((a,i)=>avFiltro==='todos'||a.cat===avFiltro?avItem(a,i):'').join('')||'<p class="note">Nenhum aviso nesta categoria.</p>';bindAv($('av-list'));
+  $('pn-av').innerHTML=AVS.slice(0,4).map((a,i)=>avItem(a,i)).join('')+(AVS.length>4?`<p class="note">E mais ${AVS.length-4} aviso${AVS.length-4===1?'':'s'}.</p>`:'');bindAv($('pn-av'));
+  const low=new Set(insumos.filter(i=>i.s<i.min).map(i=>i.id));
+  if(prevLow){const novos=[...low].filter(id=>!prevLow.has(id));if(novos.length){const nm=novos.map(id=>insById(id).n).join(', ');toast('Aviso: '+nm+(novos.length>1?' ficaram':' ficou')+' abaixo do estoque mínimo.');$('bell').classList.remove('ring');void $('bell').offsetWidth;$('bell').classList.add('ring')}}
+  prevLow=low}
+function openAv(){$('avpanel').hidden=false;$('bell').setAttribute('aria-expanded','true')}
+function fecharAv(){$('avpanel').hidden=true;$('bell').setAttribute('aria-expanded','false')}
+$('bell').onclick=e=>{e.stopPropagation();$('avpanel').hidden?openAv():fecharAv()};
+$('avpanel').addEventListener('click',e=>e.stopPropagation());
+document.addEventListener('click',()=>{if(!$('avpanel').hidden)fecharAv()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')fecharAv()});
+function irCompra(id){fecharAv();show('estoque');efMode='entrada';efRender();const i=insById(id);$('fe-i').value=id;$('fe-i').onchange();
+  const cm=consumoMes(id)/30,q=Math.max(i.min-i.s,0)+cm*15;$('fe-q').value=i.u==='un'?Math.ceil(q):Math.ceil(q*2)/2;$('fe-q').oninput();
+  $('ef-form').scrollIntoView({behavior:'smooth',block:'center'});toast('Quantidade sugerida para 15 dias de produção. Confira o valor da nota e registre.')}
+function irPerda(id){fecharAv();show('estoque');efMode='perda';efRender();$('fl-i').value=id;$('fl-i').onchange();$('ef-form').scrollIntoView({behavior:'smooth',block:'center'})}
+
+/* ---------- Energia ---------- */
+function energia(){const t=kwhTotal();$('e-kwh').textContent=t.toLocaleString('pt-BR')+' kWh';$('e-cost').textContent=brl(t*TAR);
+  const mx=Math.max(...devices.map(d=>d.kwh));
+  $('e-bars').innerHTML=devices.map(d=>`<div style="display:flex;flex-direction:column;gap:4px"><div class="row between"><span>${d.name}</span><span class="num note">${d.kwh} kWh · ${brl(d.kwh*TAR)}</span></div><div class="stack" style="height:10px"><span style="width:${d.kwh/mx*100}%;background:${d.name==='Câmara fria'?'var(--warn)':'var(--teal)'}"></span></div></div>`).join('');
+  sim()}
+function sim(){const h=+$('s-h').value,f=+$('s-f').value;$('s-hv').textContent=h+' h por noite';$('s-fv').textContent=f+'% das fornadas';
+  const cam=1.9*0.4*h*30, forno=devices[0].kwh*f/100*0.12; const r=(cam+forno)*TAR;
+  $('s-res').textContent=brl(r);$('s-ano').textContent=brl0(r*12)+' em 12 meses, mantendo a temperatura dentro da faixa segura.'}
+['s-h','s-f'].forEach(i=>$(i).oninput=sim);
+function tick(){let w=0;devices.forEach(d=>{if(d.on){d.cur=d.w*(0.85+Math.random()*0.3);w+=d.cur}else d.cur=0});
+  $('e-now').textContent=(w/1000).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+' kW';
+  const el=$('d-now');if(el&&sel)el.textContent=sel.on?Math.round(sel.cur).toLocaleString('pt-BR')+' W':'Desligado'}
+
+/* ---------- Caixa ---------- */
+const SALDO=6000;
+function caixa(){const atraso=$('cx-atraso').checked;
+  const ms=buildMov().map(m=>m[1].startsWith('Cartão de crédito')&&atraso?[m[0]+10,m[1]+' (atrasado)',m[2],m[3]]:m).sort((a,b)=>a[0]-b[0]);
+  let s=SALDO;const pts=[];for(let d=0;d<=30;d++){ms.filter(m=>m[0]===d).forEach(m=>s+=m[2]);pts.push(s)}
+  const mn=Math.min(...pts),md=pts.indexOf(mn);
+  $('cx-hoje').textContent=brl0(SALDO);$('cx-min').textContent=brl0(mn);$('cx-min').style.color=mn<0?'var(--bad)':'var(--fg)';
+  $('cx-alert').innerHTML=mn<0?`<div class="alert"><span class="i" style="background:var(--bad)"></span><div><b>Caixa negativo no dia ${md}</b><p class="note">Antecipe recebíveis ou renegocie o vencimento de um fornecedor.</p></div></div>`:`<div class="alert"><span class="i" style="background:var(--teal)"></span><div><b>Caixa positivo no período</b><p class="note">Menor folga no dia ${md}.</p></div></div>`;
+  $('cx-tab').innerHTML=ms.map(m=>`<tr><td class="num">${String(m[0]).padStart(2,'0')}/11</td><td>${m[1]}</td><td class="note">${m[3]}</td><td class="r num" style="color:${m[2]<0?'var(--bad)':'var(--good)'}">${brl0(m[2])}</td></tr>`).join('');
+  const W=640,H=220,L=56,B=24,T=12,lo=Math.min(-6000,mn-1000),hi=Math.max(...pts)+2000;
+  const x=d=>L+(W-L-10)*d/30,y=v=>T+(H-T-B)*(1-(v-lo)/(hi-lo));
+  let g='';const step=hi-lo>30000?10000:5000;
+  for(let v=Math.ceil(lo/step)*step;v<=hi;v+=step)g+=`<line x1="${L}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end">${v/1000}k</text>`;
+  g+=`<line x1="${L}" x2="${W}" y1="${y(0)}" y2="${y(0)}" stroke="var(--muted)" stroke-dasharray="4 4"/>`;
+  [0,5,10,15,20,25,30].forEach(d=>g+=`<text x="${x(d)}" y="${H-6}" text-anchor="middle">${d===0?'hoje':d+'d'}</text>`);
+  let p=`M${x(0)},${y(pts[0])}`;pts.forEach((v,d)=>{if(d){p+=`H${x(d)}V${y(v)}`}});
+  g+=`<path d="${p}H${x(30)}V${y(lo)}H${x(0)}Z" fill="var(--teal)" opacity=".12"/><path d="${p}" fill="none" stroke="var(--teal)" stroke-width="2.5"/>`;
+  g+=`<circle cx="${x(md)}" cy="${y(mn)}" r="5" fill="${mn<0?'var(--bad)':'var(--accent)'}"/>`;
+  $('ch-cx').innerHTML=g}
+$('cx-atraso').onchange=caixa;
+
+/* ---------- Tributos ---------- */
+const faixas=[[180000,.04,0],[360000,.073,5940],[720000,.095,13860],[1800000,.107,22500],[3600000,.143,87300],[4800000,.19,378000]];
+function trib(){const f=+$('t-fat').value,r=f*12;const i=faixas.findIndex(x=>r<=x[0]);const [,al,de]=faixas[i<0?5:i];
+  const ef=(r*al-de)/r;$('t-fatv').textContent=brl0(f);$('t-rbt').textContent=brl0(r);$('t-faixa').textContent=(i+1)+'ª faixa';
+  $('t-nom').textContent=pct(al);$('t-ded').textContent=brl0(de);$('t-ef').textContent=pct(ef);$('t-das').textContent=brl(f*ef)}
+$('t-fat').oninput=trib;
+
+/* ---------- Equipamentos ---------- */
+let sel=null;
+function eqList(){$('eq-count').textContent=devices.length+' conectados';
+  $('eq-list').innerHTML=devices.map((d,i)=>`<button class="dev" data-i="${i}" aria-pressed="${sel===d}"><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor">${icons[d.ic]}</svg></span><span class="m"><b>${d.name}</b><small>${d.id}</small></span><span class="pill ${d.on?'ok':'warn'}"><span class="dot"></span>${d.on?'Online':'Em espera'}</span></button>`).join('');
+  $('eq-list').querySelectorAll('.dev').forEach(b=>b.onclick=()=>{sel=devices[b.dataset.i];eqList();eqDetail()})}
+function eqDetail(){const d=sel;
+  const hrs=Array.from({length:24},(_,h)=>{const base=d.name==='Forno elétrico'?(h>=4&&h<=10?.9:h>=14&&h<=17?.6:.05):d.name==='Batedeira industrial'?(h>=3&&h<=6?.7:0):.55+.25*Math.sin(h/3);return Math.max(0,base)});
+  const W=420,H=90,mx=Math.max(...hrs,.1);let p='';hrs.forEach((v,h)=>{p+=(h?'L':'M')+(h*W/23).toFixed(1)+','+(H-6-(H-12)*v/mx).toFixed(1)});
+  const dia=d.kwh/30;
+  $('eq-detail').innerHTML=`<div class="row between"><div><span class="label">${d.tipo}</span><h3 style="font-size:20px;margin-top:4px">${d.name}</h3></div><span class="pill ${d.on?'ok':'warn'}"><span class="dot"></span>${d.on?'Online':'Em espera'}</span></div>
+  <div class="grid g3"><div><span class="label">Potência</span><p class="live num" id="d-now" style="font-size:20px;font-weight:600"></p></div><div><span class="label">Consumo hoje</span><p class="num" style="font-size:20px;font-weight:600">${dia.toLocaleString('pt-BR',{maximumFractionDigits:1})} kWh</p></div><div><span class="label">Custo hoje</span><p class="num" style="font-size:20px;font-weight:600">${brl(dia*TAR)}</p></div></div>
+  <span class="label">Últimas 24 horas</span>
+  <svg viewBox="0 0 ${W} ${H}" style="width:100%"><path d="${p}L${W},${H}L0,${H}Z" fill="var(--teal)" opacity=".14"/><path d="${p}" fill="none" stroke="var(--teal)" stroke-width="2"/></svg>
+  <div class="tw"><table><tbody><tr><td>Identidade digital</td><td class="r"><span class="pill ok">Verificada</span></td></tr><tr><td>Número de série</td><td class="r" style="font-family:var(--mono)">${d.id}</td></tr><tr><td>Consumo no mês</td><td class="r num">${d.kwh} kWh</td></tr><tr><td>Lançado em</td><td class="r">Custo dos produtos</td></tr></tbody></table></div>`;tick()}
+const STEPS=['Ler o QR Code','Verificar identidade digital','Vincular à conta da padaria'];
+function renderSteps(state,msg){$('pair-steps').innerHTML=STEPS.map((s,i)=>{const st=state[i]||'';return `<div class="step ${st}"><span class="n">${st==='done'?'✓':st==='fail'?'✕':i+1}</span><span>${s}</span></div>`}).join('')+(msg||'')}
+renderSteps([]);
+let busy=false;
+function pair(fake){if(busy)return;busy=true;const code=fake?'TOMADA-GENERICA-001':$('pair-code').value.trim().toUpperCase();const name=$('pair-name').value.trim()||'Novo equipamento';
+  const valid=/^C360-[A-Z0-9]{3}-[A-Z0-9]{4}$/.test(code)&&!devices.some(d=>d.id===code);
+  const st=[];const go=(i)=>{if(i===3){busy=false;
+      devices.push({id:code,name,tipo:'Tomada inteligente',kwh:60,w:2400,on:true,ic:'equip'});sel=devices[devices.length-1];
+      renderSteps(st,`<div class="alert"><span class="i" style="background:var(--teal)"></span><div><b>${name} conectado</b><p class="note">O consumo já entra no painel, na energia e no custo dos produtos.</p></div></div>`);
+      eqList();eqDetail();painel();energia();$('pair-code').value='C360-T05-'+Math.random().toString(36).slice(2,6).toUpperCase();return}
+    st[i]='run';renderSteps(st);
+    setTimeout(()=>{if(i===1&&!valid){st[i]='fail';busy=false;
+        renderSteps(st,`<div class="alert"><span class="i" style="background:var(--bad)"></span><div><b>Equipamento bloqueado</b><p class="note">${devices.some(d=>d.id===code)?'Este código já está vinculado a uma conta.':'"'+code+'" não tem identidade Custo360. A plataforma recusa os dados, mas a tomada continua funcionando como tomada comum.'}</p></div></div>`);return}
+      st[i]='done';go(i+1)},700)};go(0)}
+$('pair-go').onclick=()=>pair(false);$('pair-fake').onclick=()=>pair(true);
+
+/* ---------- Planos ---------- */
+const plans=[['Essencial','R$ 49','Receitas, despesas, custos e fluxo de caixa',['Painel financeiro','Fluxo de caixa','1 usuário']],
+ ['Gestão','R$ 129','Estoque, relatórios avançados e simulações',['Tudo do Essencial','Ficha de custo por produto','Simulações de cenário'],true],
+ ['Inteligente','R$ 249','Integração com equipamentos e análises avançadas',['Tudo do Gestão','Equipamentos conectados','Alertas de consumo']],
+ ['Corporativo','Sob proposta','Várias unidades e controles personalizados',['Tudo do Inteligente','Várias lojas','Integrações sob medida']]];
+$('plans').innerHTML=plans.map(([n,p,d,f,h])=>`<div class="card plan ${h?'hl':''}">${h?'<span class="pill demo" style="align-self:flex-start">Usado no simulador</span>':''}<h3 style="font-size:20px">${n}</h3><p><span class="big" style="font-size:30px">${p}</span>${p.startsWith('R$')?'<span class="note"> /mês</span>':''}</p><p class="note">${d}</p><ul>${f.map(x=>`<li>${x}</li>`).join('')}</ul></div>`).join('');
+function rev(){const n=+$('r-eq').value,pl=+$('r-plan').value;$('r-eqv').textContent=n+' unidades';$('r-a').textContent=brl0(n*199);$('r-b').textContent=brl0(pl*12);$('r-t').textContent=brl0(n*199+pl*12)}
+['r-eq','r-plan'].forEach(i=>$(i).oninput=rev);
+
+/* ---------- Cenários ---------- */
+const PRESETS=[
+ {id:'preco',t:'Aumentar o preço em 8%',d:'Alguns clientes podem comprar menos.',v:{preco:8,vol:-4,ing:0,ener:0,func:false,cam:false,dom:false}},
+ {id:'func',t:'Contratar mais um padeiro',d:'Mais produção para atender a demanda da manhã.',v:{preco:0,vol:10,ing:0,ener:0,func:true,cam:false,dom:false}},
+ {id:'cam',t:'Trocar a câmara fria',d:'Equipamento novo, que gasta menos energia.',v:{preco:0,vol:0,ing:0,ener:0,func:false,cam:true,dom:false}},
+ {id:'dom',t:'Abrir aos domingos',d:'Um dia a mais de vendas, com custo de folha.',v:{preco:0,vol:11,ing:0,ener:0,func:false,cam:false,dom:true}}
+];
+let scName='Situação atual',saved=[];
+$('sc-presets').innerHTML=PRESETS.map(p=>`<button class="dev" data-p="${p.id}" style="flex-direction:column;align-items:flex-start;gap:4px"><b>${p.t}</b><span class="note">${p.d}</span></button>`).join('');
+$('sc-presets').querySelectorAll('.dev').forEach(b=>b.onclick=()=>{const p=PRESETS.find(x=>x.id===b.dataset.p);
+  ['preco','vol','ing','ener'].forEach(k=>$('sc-'+k).value=p.v[k]);['func','cam','dom'].forEach(k=>$('sc-'+k).checked=p.v[k]);
+  scName=p.t;$('sc-presets').querySelectorAll('.dev').forEach(x=>x.setAttribute('aria-pressed',x===b));cenario()});
+function model(o){const D=DR,v=1+o.vol/100,r=D.R*(1+o.preco/100)*v;
+  const ing=(D.MP+D.CMV)*v*(1+o.ing/100),emb=0;
+  const tar=1+o.ener/100,camE=380*TAR;
+  const ener=(D.enerTot+D.enerDir*(v-1)-(o.cam?camE*0.35:0))*(o.dom?1.04:1)*tar;
+  const folha=D.folhaTot+PRO_LABORE+(o.func?calcF({sal:2900,jor:220,dep:0,vt:1,he:0,not:0,fal:0}).total:0)+(o.dom?1800:0);
+  const trib=r*(D.aliq+D.taxaPct),fixos=ALUGUEL+D.depTot+MANUT+D.adm+D.perdas;
+  const tot=ing+ener+folha+trib+fixos,lucro=r-tot,pe=(folha+fixos)/(1-(ing+ener+trib)/r);
+  return {r,ing,emb,ener,folha,fixos,trib,tot,lucro,marg:lucro/r,pe,camSave:o.cam?camE*0.35*tar:0}}
+function readSc(){return{preco:+$('sc-preco').value,vol:+$('sc-vol').value,ing:+$('sc-ing').value,ener:+$('sc-ener').value,func:$('sc-func').checked,cam:$('sc-cam').checked,dom:$('sc-dom').checked}}
+const sgn=v=>(v>0?'+':'')+v+'%';
+function cenario(){const o=readSc(),b=model({preco:0,vol:0,ing:0,ener:0,func:false,cam:false,dom:false}),c=model(o);
+  $('sc-precov').textContent=sgn(o.preco);$('sc-volv').textContent=sgn(o.vol);$('sc-ingv').textContent=sgn(o.ing);$('sc-enerv').textContent=sgn(o.ener);
+  const dif=c.lucro-b.lucro;
+  $('sc-lucro').textContent=brl0(c.lucro);$('sc-lucro').style.color=c.lucro<0?'var(--bad)':'var(--fg)';
+  $('sc-dif').innerHTML=`<span class="${dif>=0?'up':'down'}">${dif>=0?'+':''}${brl0(dif)}</span> <span class="note">por mês contra hoje</span>`;
+  const v=$('sc-verd');const st=dif>300?['ok','Vale a pena']:dif<-300?['bad','Não compensa']:['warn','Pouca diferença'];v.className='pill '+st[0];v.innerHTML='<span class="dot"></span>'+st[1];
+  const rows=[['Receita',b.r,c.r,brl0],['Insumos e mercadorias',b.ing,c.ing,brl0],['Energia',b.ener,c.ener,brl0],['Simples e taxas de cartão',b.trib,c.trib,brl0],['Folha e pró-labore',b.folha,c.folha,brl0],['Custos fixos',b.fixos,c.fixos,brl0],['Margem de lucro',b.marg,c.marg,pct],['Ponto de equilíbrio',b.pe,c.pe,brl0]];
+  $('sc-tab').innerHTML=rows.map(([n,x,y,f])=>`<tr><td>${n}</td><td class="r num">${f(x)}</td><td class="r num"><b>${f(y)}</b></td></tr>`).join('');
+  // ponte do lucro
+  const steps=[['Lucro hoje',b.lucro,'base'],['Vendas',c.r-b.r],['Ingred. e emb.',-(c.ing+c.emb-b.ing-b.emb)],['Folha',-(c.folha-b.folha)],['Energia',-(c.ener-b.ener)],['Tributos',-(c.trib-b.trib)],['Cenário',c.lucro,'base']];
+  const W=560,H=150,T=10,B=22;let acc=0;const vals=[];steps.forEach(([n,d,k])=>{if(k){vals.push([0,d]);acc=d}else{vals.push([acc,acc+d]);acc+=d}});
+  const lo=Math.min(0,...vals.flat()),hi=Math.max(...vals.flat())*1.08||1;const y=x=>T+(H-T-B)*(1-(x-lo)/(hi-lo));const bw=W/steps.length;
+  let s=`<line x1="0" x2="${W}" y1="${y(0)}" y2="${y(0)}" stroke="var(--line)"/>`;
+  steps.forEach(([n,d,k],i)=>{const [a,z]=vals[i];const top=y(Math.max(a,z)),h=Math.max(1.5,Math.abs(y(a)-y(z)));
+    const col=k?'var(--fg)':d>=0?'var(--teal)':'var(--bad)';
+    s+=`<rect x="${i*bw+bw*.2}" y="${top}" width="${bw*.6}" height="${h}" rx="3" fill="${col}" opacity="${k?.85:1}"/>`;
+    s+=`<text x="${i*bw+bw/2}" y="${top-4}" text-anchor="middle" style="font-size:10.5px">${k?brl0(d).replace('R$ ','R$'):(d>=0?'+':'−')+Math.abs(Math.round(d)).toLocaleString('pt-BR')}</text>`;
+    s+=`<text x="${i*bw+bw/2}" y="${H-6}" text-anchor="middle">${n}</text>`});
+  $('ch-sc').innerHTML=s;
+  // recomendação
+  const why=[],risk=[];
+  const dv=c.r-b.r;if(Math.abs(dv)>50)why.push(`a receita ${dv>0?'sobe':'cai'} ${brl0(Math.abs(dv))} por mês`);
+  const df=c.folha-b.folha;if(df)why.push(`a folha aumenta ${brl0(df)}`);
+  const de=c.ener-b.ener;if(Math.abs(de)>20)why.push(`a energia ${de>0?'aumenta':'diminui'} ${brl0(Math.abs(de))}`);
+  const di=c.ing+c.emb-b.ing-b.emb;if(Math.abs(di)>50)why.push(`ingredientes e embalagens ${di>0?'aumentam':'diminuem'} ${brl0(Math.abs(di))}`);
+  if(o.preco>0&&o.vol<0)risk.push('Confirme se a perda de clientes ficaria mesmo em '+Math.abs(o.vol)+'%. Teste o novo preço em poucos produtos primeiro.');
+  if(o.preco>0&&o.vol>=0)risk.push('Subir o preço sem perder nenhum cliente é otimista. Experimente reduzir o volume para ver até onde a decisão se sustenta.');
+  if(o.func)risk.push('A contratação só se paga se a produção extra for vendida. Acompanhe as sobras diárias no primeiro mês.');
+  if(o.dom)risk.push('O movimento de domingo é uma estimativa. Abra por 4 semanas como teste e compare com estes números.');
+  if(o.ing>0)risk.push('Com ingredientes mais caros, revise a ficha de custo dos produtos de menor margem.');
+  let pay='';if(o.cam){const m=6500/c.camSave;pay=`<div class="alert"><span class="i" style="background:${m>36?'var(--warn)':'var(--teal)'}"></span><div><b>Retorno do investimento: ${Math.round(m)} meses</b><p class="note">A câmara nova economiza ${brl(c.camSave)} por mês. ${m>36?'É um prazo longo: só compensa se a câmara atual estiver perto do fim da vida útil ou dando manutenção cara.':'Prazo razoável para um equipamento desse tipo.'}</p></div></div>`}
+  if(c.pe>c.r)risk.push('A receita fica abaixo do ponto de equilíbrio: a padaria passaria a operar no prejuízo.');
+  const caixa=c.lucro<b.lucro&&c.lucro<2000?'O lucro fica pequeno para absorver imprevistos no caixa.':'';
+  $('sc-rec').innerHTML=`<div class="row between"><h3>O que o Custo360 recomenda</h3><span class="note">${scName}</span></div>
+   <p style="font-size:16px"><b>${st[1]}.</b> ${why.length?'Neste cenário, '+why.join(', ').replace(/, ([^,]*)$/,' e $1')+'. ':'Nenhuma premissa mudou ainda. Escolha uma decisão acima ou mexa nos controles. '}${why.length?`O lucro vai de ${brl0(b.lucro)} para ${brl0(c.lucro)} por mês${Math.abs(c.pe-b.pe)>100?` e o ponto de equilíbrio ${c.pe>b.pe?'sobe':'cai'} para ${brl0(c.pe)}`:''}.`:''} ${caixa}</p>
+   ${pay}${risk.length?`<span class="label">Antes de decidir</span><ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px">${risk.map(r=>`<li>${r}</li>`).join('')}</ul>`:''}
+   <p class="note">A decisão continua sendo do empresário. O sistema mostra o efeito provável de cada escolha com base nos dados medidos e lançados.</p>`;
+  return {o,c}}
+['sc-preco','sc-vol','sc-ing','sc-ener','sc-func','sc-cam','sc-dom'].forEach(i=>$(i).addEventListener('input',()=>{if(!scName.startsWith('Personalizado')&&scName!=='Situação atual')scName+=' (ajustado)';cenario()}));
+function renderSaved(){const BL=model({preco:0,vol:0,ing:0,ener:0,func:false,cam:false,dom:false}).lucro;$('sc-saved').innerHTML=saved.length?saved.map((s,i)=>`<tr><td>${s.n}</td><td class="r num" style="color:${s.l<BL?'var(--bad)':'var(--good)'}">${brl0(s.l)}</td><td class="r num">${pct(s.m)}</td><td class="r"><button class="btn ghost" style="padding:4px 8px;font-size:12px" data-x="${i}">Remover</button></td></tr>`).join(''):`<tr><td colspan="4" class="note">Salve até 4 cenários para comparar lado a lado. A situação atual dá ${brl0(BL)} de lucro por mês.</td></tr>`;
+  $('sc-saved').querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{saved.splice(+b.dataset.x,1);renderSaved()});
+  if(saved.length>1){const best=saved.reduce((a,b)=>b.l>a.l?b:a);$('sc-best').textContent=`Maior lucro entre os salvos: ${best.n} (${brl0(best.l)} por mês).`}else $('sc-best').textContent=''}
+$('sc-save').onclick=()=>{const {c}=cenario();if(saved.length>=4)saved.shift();saved.push({n:scName==='Situação atual'?'Situação atual':scName,l:c.lucro,m:c.marg});renderSaved()};
+
+/* ---------- Início ---------- */
+sel=devices[0];refreshAll();$('t-fat').value=Math.round(DR.R/1000)*1000;efRender();trib();eqList();eqDetail();rev();renderSaved();$('sc-presets').querySelector('.dev').click();tick();setInterval(tick,1500);
+const h=(location.hash||'').slice(1);show(VIEWS.some(v=>v[0]===h)?h:'painel');
+</script>
+
+</body>
+</html>
